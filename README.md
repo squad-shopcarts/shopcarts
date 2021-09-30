@@ -1,17 +1,22 @@
-# project-template
+# nyu-devops-fall2021-squad-shopcarts
+This is the repository for the Homework on NYU DevOps and Agile Methodologies
 
-This is a skeleton you can use to start your projects
+##Track List
+Track List: https://www.notion.so/DevOps-Team-SC-0b9465760ff547a9964e9718e9a1afbe
 
-## Overview
+## Resource:
+Resource URL: /shopcarts
 
+## Project Description:
+The shopcarts resource allow customers to make a collection of products that they want to purchase. It should contain a reference to a product and the quantity the customer wants to buy. It may also contain the price of the product at the time they placed it in the cart. A customer will only have one shopcart. Since this is really a collection of product items, you will need to implement a subordinate REST API to place items into the shopcarts collection (e.g., / shopcarts/{id}/items). You also will need to associate the shopcart with a customer preferably through their customer id.
+
+## Template Overview
 This project template contains starter code for your class project. The `/service` folder contains your `models.py` file for your model and a `routes.py` file for your service. The `/tests` folder has test case starter code for testing the model and the service separately. All you need to do is add your functionality. You can use the [lab-flask-rest](https://github.com/nyu-devops/lab-flask-rest) for code examples to take from.
 
 ## Automatic Setup
-
 The best way to use this repo is to start your own repo using it as a git template. To do this just press the green **Use this template** button in GitHub and this will become the source for your repository.
 
 ## Manual Setup
-
 You can also clone this repository and then copy and paste the starter code into your project repo folder on your local computer. Be careful not to copy over your own README.md file so be selective in what you copy.
 
 There are two hidden files that you will need to copy manually if you use the Finder to copy files from this folder into your repo folder. They are:
@@ -22,7 +27,6 @@ There are two hidden files that you will need to copy manually if you use the Fi
 ```
 
 ## Contents
-
 The project contains the following:
 
 ```text
