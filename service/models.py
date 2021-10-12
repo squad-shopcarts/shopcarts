@@ -17,63 +17,92 @@ class DataValidationError(Exception):
 
     pass
 
-
-class YourResourceModel(db.Model):
+class Product(db.Model):
     """
-    Class that represents a <your resource model name>
+    Class that represents a Shopcart
     """
 
     app = None
 
     # Table Schema
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(63))
+    product_id = db.Column(db.Integer, primary_key=True)
+    in_stock  = db.Column(db.Boolean(), nullable=False)
+    price  = db.Column(db.Float, nullable=False)
+    wishlist = db.Column(db.Boolean(), nullable=False)
+
+    def serialize(self):
+        """ Serializes a Shopcart into a dictionary """
+        return {"product_id": self.product_id,
+                 "in_stock": self.in_stock,
+                 "price": self.price,
+                 "wishlist": self.wishlist}
+
+    # create deserialize(self, data)
+
+class Shopcart(db.Model):
+    """
+    Class that represents a Shopcart
+    """
+
+    app = None
+
+    # Table Schema
+    customer_id = db.Column(db.Integer, primary_key=True)
+    product_id = db.Column(db.Integer, nullable=False)
+    unit_price  = db.Column(db.Float, nullable=False)
+    quantity  = db.Column(db.Integer, nullable=False)
 
     def __repr__(self):
-        return "<YourResourceModel %r id=[%s]>" % (self.name, self.id)
+        return "<Shopcart for user_id: %s>" % (self.customer_id)
 
     def create(self):
         """
-        Creates a YourResourceModel to the database
+        Creates a Shopcart to the database
         """
-        logger.info("Creating %s", self.name)
-        self.id = None  # id must be none to generate next primary key
+        logger.info("Creating shopcart for user_id: %s", self.customer_id)
+        #self.id = None  # id must be none to generate next primary key
         db.session.add(self)
         db.session.commit()
 
     def save(self):
         """
-        Updates a YourResourceModel to the database
+        Updates a Shopcart to the database
         """
-        logger.info("Saving %s", self.name)
+        logger.info("Saving %s", self.customer_id)
         db.session.commit()
 
     def delete(self):
-        """ Removes a YourResourceModel from the data store """
-        logger.info("Deleting %s", self.name)
+        """ Removes a Shopcart from the data store """
+        logger.info("Deleting %s", self.customer_id)
         db.session.delete(self)
         db.session.commit()
 
     def serialize(self):
-        """ Serializes a YourResourceModel into a dictionary """
-        return {"id": self.id, "name": self.name}
+        """ Serializes a Shopcart into a dictionary """
+        return {"customer_id": self.customer_id,
+                 "product_id": self.product_id,
+                 "unit_price": self.unit_price,
+                 "quantity": self.quantity}
 
     def deserialize(self, data):
         """
-        Deserializes a YourResourceModel from a dictionary
+        Deserializes a Shopcart from a dictionary
 
         Args:
             data (dict): A dictionary containing the resource data
         """
         try:
-            self.name = data["name"]
+            self.product_id = data["product_id"]
+            self.unit_price = data["unit_price"]
+            self.quantity = data ["quantity"]
+
         except KeyError as error:
             raise DataValidationError(
-                "Invalid YourResourceModel: missing " + error.args[0]
+                "Invalid Shopcart: missing " + error.args[0]
             )
         except TypeError as error:
             raise DataValidationError(
-                "Invalid YourResourceModel: body of request contained bad or no data"
+                "Invalid Shopcart: body of request contained bad or no data"
             )
         return self
 
