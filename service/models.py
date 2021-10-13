@@ -1,6 +1,5 @@
 """
 Models for YourResourceModel
-
 All of the models are stored in this module
 """
 import logging
@@ -22,14 +21,20 @@ class DataValidationError(Exception):
 ######################################################################
 class Product(db.Model):
     """
-    Class that represents an Product in each shopping cart
+    Class that represents a Shopcart
     """
+
+    app = None
+
     # Table Schema
     id = db.Column(db.Integer, primary_key=True)
-    shopcart_id = db.Column(db.Integer, db.ForeignKey('customer_order.id'), nullable=False)
+    shopcart_id = db.Column(db.Integer, db.ForeignKey('shopcart.customer_id'), nullable=False)
     quantity = db.Column(db.Integer, nullable=True)
-    price = db.Column(db.Float, nullable=False)
-    item_name = db.Column(db.String(120), nullable=False)
+    price  = db.Column(db.Float, nullable=False)
+    
+    in_stock  = db.Column(db.Boolean(), nullable=False)
+    wishlist = db.Column(db.Boolean(), nullable=False)
+
 
     def delete(self):
         pass
@@ -38,7 +43,14 @@ class Product(db.Model):
         pass
 
     def serialize(self):
-        pass
+        """ Serializes a Shopcart into a dictionary """
+        return {"product_id": self.id,
+                "quantity": self.quantity,
+                "price": self.price,
+                "shopcart_id":self.shopcart_id,
+
+                 "in_stock": self.in_stock,
+                 "wishlist": self.wishlist}
 
     def deserialize(self, data):
         pass
@@ -47,65 +59,68 @@ class Product(db.Model):
 #  S H O P C A R T   M O D E L
 ######################################################################
 class Shopcart(db.Model):
-
     """
     Class that represents a Shopcart
     """
-
     app = None
 
     # Table Schema
-    id = db.Column(db.Integer, primary_key=True)
-    # name = db.Column(db.String(63))
-    # total_price = db.Column(db.Float, nullable=False)
-    # total_quatinty = db.Column(db.Integer, nullable=True)
+    customer_id = db.Column(db.Integer, primary_key=True)
+    # total_price  = db.Column(db.Float, nullable=False)
+    # total_quantity  = db.Column(db.Integer, nullable=False)
     products = db.relationship('Product', backref='shopcart', lazy=True)  
 
     def __repr__(self):
-        return "<YourResourceModel %r id=[%s]>" % (self.name, self.id)
+        return "<Shopcart for user_id: %s>" % (self.customer_id)
 
     def create(self):
         """
-        Creates a YourResourceModel to the database
+        Creates a Shopcart to the database
         """
-        logger.info("Creating %s", self.name)
-        self.id = None  # id must be none to generate next primary key
+        logger.info("Creating shopcart for user_id: %s", self.customer_id)
+        #self.id = None  # id must be none to generate next primary key
         db.session.add(self)
         db.session.commit()
 
     def save(self):
         """
-        Updates a YourResourceModel to the database
+        Updates a Shopcart to the database
         """
-        logger.info("Saving %s", self.name)
+        logger.info("Saving %s", self.customer_id)
         db.session.commit()
 
     def delete(self):
-        """ Removes a YourResourceModel from the data store """
-        logger.info("Deleting %s", self.name)
+        """ Removes a Shopcart from the data store """
+        logger.info("Deleting %s", self.customer_id)
         db.session.delete(self)
         db.session.commit()
 
     def serialize(self):
-        """ Serializes a YourResourceModel into a dictionary """
-        return {"id": self.id, "name": self.name}
+        """ Serializes a Shopcart into a dictionary """
+        shopcart =  {"customer_id": self.customer_id,
+                    "products":[]
+                 }
+        for product in self.products:
+            shopcart["products"].append(product.serialize())
+        return shopcart
 
     def deserialize(self, data):
         """
-        Deserializes a YourResourceModel from a dictionary
-
+        Deserializes a Shopcart from a dictionary
         Args:
             data (dict): A dictionary containing the resource data
         """
         try:
-            self.name = data["name"]
+            self.product_id = data["product_id"]
+            
+
         except KeyError as error:
             raise DataValidationError(
-                "Invalid YourResourceModel: missing " + error.args[0]
+                "Invalid Shopcart: missing " + error.args[0]
             )
         except TypeError as error:
             raise DataValidationError(
-                "Invalid YourResourceModel: body of request contained bad or no data"
+                "Invalid Shopcart: body of request contained bad or no data"
             )
         return self
 
@@ -140,7 +155,6 @@ class Shopcart(db.Model):
     # @classmethod
     # def find_by_name(cls, name):
     #     """Returns all YourResourceModels with the given name
-
     #     Args:
     #         name (string): the name of the YourResourceModels you want to match
     #     """
