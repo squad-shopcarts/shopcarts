@@ -33,6 +33,18 @@ class TestYourResourceServer(TestCase):
         """ This runs before each test """
         self.app = app.test_client()
 
+    def test_get_shopcarts(self):
+        """Get a single Shopcart"""
+        # get the id of a shopcart
+        test_shopcart = self._create_shopcarts(1)[0]
+        resp = self.app.get(
+            "/shopcarts/{}".format(test_shopcart.id), content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        # TODO: WE DONT HAVE SHOPCART NAME FOR NOW
+        # self.assertEqual(data["name"], test_shopcart.name)
+
     def tearDown(self):
         """ This runs after each test """
         pass
