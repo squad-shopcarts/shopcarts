@@ -18,7 +18,7 @@ class DataValidationError(Exception):
     pass
 
 
-class Shopcart(db.Model):
+class YourResourceModel(db.Model):
     """
     Class that represents a <your resource model name>
     """
@@ -26,7 +26,7 @@ class Shopcart(db.Model):
     app = None
 
     # Table Schema
-    shopcart_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(63))
 
     def __repr__(self):
