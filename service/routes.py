@@ -13,7 +13,7 @@ from . import status  # HTTP Status Codes
 # For this example we'll use SQLAlchemy, a popular ORM that supports a
 # variety of backends including SQLite, MySQL, and PostgreSQL
 from flask_sqlalchemy import SQLAlchemy
-from service.models import YourResourceModel, DataValidationError
+from service.models import Shopcart, DataValidationError
 
 # Import Flask application
 from . import app
@@ -28,6 +28,24 @@ def index():
         "Reminder: return some useful information in json format about the service here",
         status.HTTP_200_OK,
     )
+
+######################################################################
+# RETRIEVE A SHOPCART
+######################################################################
+@app.route("/shopcatrs/<int:customer_id>", methods=["GET"])
+def get_shopcarts(customer_id):
+    """
+    Retrieve a single Shopcart
+    This endpoint will return a Shopcart based on it's id
+    """
+    app.logger.info("Request for shopcart with id: %s", customer_id)
+    shopcart = Shopcart.find(customer_id)
+    if not shopcart:
+        raise NotFound("Shopcart with id '{}' was not found.".format(customer_id))
+
+    # TODO: WE DONT HAVE A SHOPCART NAME RIGHTNOW
+    # app.logger.info("Returning shopcart: %s", shopcart.name)
+    return make_response(jsonify(shopcart.serialize()), status.HTTP_200_OK)
 
 
 ######################################################################
