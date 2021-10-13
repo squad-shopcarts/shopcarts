@@ -17,17 +17,49 @@ class DataValidationError(Exception):
 
     pass
 
-
-class Shopcart(db.Model):
+######################################################################
+#  P R O D U C T   M O D E L
+######################################################################
+class Product(db.Model):
     """
-    Class that represents a <your resource model name>
+    Class that represents an Product in each shopping cart
+    """
+    # Table Schema
+    id = db.Column(db.Integer, primary_key=True)
+    shopcart_id = db.Column(db.Integer, db.ForeignKey('customer_order.id'), nullable=False)
+    quantity = db.Column(db.Integer, nullable=True)
+    price = db.Column(db.Float, nullable=False)
+    item_name = db.Column(db.String(120), nullable=False)
+
+    def delete(self):
+        pass
+
+    def add(self):
+        pass
+
+    def serialize(self):
+        pass
+
+    def deserialize(self, data):
+        pass
+
+######################################################################
+#  S H O P C A R T   M O D E L
+######################################################################
+class Shopcart(db.Model):
+
+    """
+    Class that represents a Shopcart
     """
 
     app = None
 
     # Table Schema
-    shopcart_id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(63))
+    id = db.Column(db.Integer, primary_key=True)
+    # name = db.Column(db.String(63))
+    # total_price = db.Column(db.Float, nullable=False)
+    # total_quatinty = db.Column(db.Integer, nullable=True)
+    products = db.relationship('Product', backref='shopcart', lazy=True)  
 
     def __repr__(self):
         return "<YourResourceModel %r id=[%s]>" % (self.name, self.id)
@@ -87,30 +119,30 @@ class Shopcart(db.Model):
         app.app_context().push()
         db.create_all()  # make our sqlalchemy tables
 
-    @classmethod
-    def all(cls):
-        """ Returns all of the YourResourceModels in the database """
-        logger.info("Processing all YourResourceModels")
-        return cls.query.all()
+    # @classmethod
+    # def all(cls):
+    #     """ Returns all of the YourResourceModels in the database """
+    #     logger.info("Processing all YourResourceModels")
+    #     return cls.query.all()
 
-    @classmethod
-    def find(cls, by_id):
-        """ Finds a YourResourceModel by it's ID """
-        logger.info("Processing lookup for id %s ...", by_id)
-        return cls.query.get(by_id)
+    # @classmethod
+    # def find(cls, by_id):
+    #     """ Finds a YourResourceModel by it's ID """
+    #     logger.info("Processing lookup for id %s ...", by_id)
+    #     return cls.query.get(by_id)
 
-    @classmethod
-    def find_or_404(cls, by_id):
-        """ Find a YourResourceModel by it's id """
-        logger.info("Processing lookup or 404 for id %s ...", by_id)
-        return cls.query.get_or_404(by_id)
+    # @classmethod
+    # def find_or_404(cls, by_id):
+    #     """ Find a YourResourceModel by it's id """
+    #     logger.info("Processing lookup or 404 for id %s ...", by_id)
+    #     return cls.query.get_or_404(by_id)
 
-    @classmethod
-    def find_by_name(cls, name):
-        """Returns all YourResourceModels with the given name
+    # @classmethod
+    # def find_by_name(cls, name):
+    #     """Returns all YourResourceModels with the given name
 
-        Args:
-            name (string): the name of the YourResourceModels you want to match
-        """
-        logger.info("Processing name query for %s ...", name)
-        return cls.query.filter(cls.name == name)
+    #     Args:
+    #         name (string): the name of the YourResourceModels you want to match
+    #     """
+    #     logger.info("Processing name query for %s ...", name)
+    #     return cls.query.filter(cls.name == name)
