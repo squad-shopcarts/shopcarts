@@ -58,12 +58,14 @@ class Product(db.Model):
 #  S H O P C A R T   M O D E L
 ######################################################################
 class Shopcart(db.Model):
+
     """
     Class that represents a Shopcart
     """
     app = None
 
     # Table Schema
+
     customer_id = db.Column(db.Integer, primary_key=True)
     # total_price  = db.Column(db.Float, nullable=False)
     # total_quantity  = db.Column(db.Integer, nullable=False)

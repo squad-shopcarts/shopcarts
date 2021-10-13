@@ -1,18 +1,23 @@
-# Local OS metadata
+# Local environment
 .DS_Store
 Thumbs.db
 
+# Vagrant
+.vagrant/
+
 # VS Code
 .vscode/
-.noseids
-.sonarlint/
 
-# Vagrant
-.vagrant
+# Test reports
+unittests.xml
 
-# databases
+# database files
 db/*
 !db/.keep
+
+# SonarQube Reports
+.scannerwork/
+.sonarlint/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -57,7 +62,6 @@ htmlcov/
 .coverage.*
 .cache
 nosetests.xml
-.noseids
 coverage.xml
 *,cover
 .hypothesis/
