@@ -91,38 +91,16 @@ def update_cart(customer_id):
     update_receive = request.get_json()
     shopcart = Shopcart.find(customer_id)
     if not shopcart:
-        raise NotFound(
-            "Shopcart with id '{}' was not found.".format(customer_id))
-    shopcart = shopcart.serialize()
-    for product in shopcart['products']:
-        if product.product_id == int(shopcart['product_id']):
-            product.quantity += int(shopcart['quantity'])
-            product.price = float(shopcart['price'])
-            if shopcart['in_stock'] == 'True':
-                product.in_stock = True
-            else:
-                product.in_stock = False
-            if shopcart['wishlist'] == 'True':
-                product.wishlist = True
-            else:
-                product.wishlist = False
-            break
-    else:
-        new_prod = Product()
-        new_prod.shopcart_id = int(shopcart['shopcart_id'])
-        new_prod.product_id = int(shopcart['product_id'])
-        new_prod.name = shopcart['name']
-        new_prod.quantity = int(shopcart['quantity'])
-        new_prod.price = float(shopcart['price'])
-        if shopcart['in_stock'] == 'True':
-            new_prod.in_stock = True
+        raise NotFound(f"Account with id '{customer_id}' was not found.")
+    shopcart_info = shopcart.serialize()
+    for json_product in shopcart_info['products']:
+        if json_product['product_id'] == update_receive['product_id']:
+            # not finished
         else:
-            new_prod.in_stock = False
-        if shopcart['wishlist'] == 'True': 
-            new_prod.wishlist = True
-        else:
-            new_prod.wishlist = False
-        shopcart['products'].append(new_pod)
+            new_product = Product()
+            new_product.deserialize(update_receive)
+            shopcart.products.append(new_product)
+
     return (
         "Shopcart Item <itemid> updated",
         status.HTTP_202_ACCEPTED,

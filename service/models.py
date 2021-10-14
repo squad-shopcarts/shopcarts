@@ -46,12 +46,33 @@ class Product(db.Model):
                 "quantity": self.quantity,
                 "price": self.price,
                 "shopcart_id":self.shopcart_id,
-
                  "in_stock": self.in_stock,
-                 "wishlist": self.wishlist}
+                 "wishlist": self.wishlist
+                }
 
     def deserialize(self, data):
-        pass
+        try:
+            self.shopcart_id = int(data["shopcart_id"])
+            self.product_id = int(data["name"])
+            self.name = data["name"]
+            self.quantity = int(data["quantity"])
+            self.price = float(data["price"])
+            if data['in_stock'] == 'True':
+                self.in_stock = True
+            else:
+                self.in_stock = False
+            if data['wishlist'] == 'True': 
+                self.wishlist = True
+            else:
+                self.wishlist = False
+
+        except KeyError as error:
+            raise DataValidationError("Invalid Address: missing " + error.args[0])
+        except TypeError as error:
+            raise DataValidationError(
+                "Invalid Address: body of request contained" "bad or no data"
+            )
+        return self
 
 ######################################################################
 #  S H O P C A R T   M O D E L
@@ -97,9 +118,10 @@ class Shopcart(db.Model):
 
     def serialize(self):
         """ Serializes a Shopcart into a dictionary """
-        shopcart =  {"customer_id": self.customer_id,
-                    "products":[]
-                 }
+        shopcart =  {
+            "customer_id": self.customer_id,
+            "products":[]
+        }
         for product in self.products:
             shopcart["products"].append(product.serialize())
         return shopcart
@@ -111,16 +133,18 @@ class Shopcart(db.Model):
             data (dict): A dictionary containing the resource data
         """
         try:
-            self.product_id = data["product_id"]
-            
-
+            self.name = data["customer_id"]
+            # handle inner list of addresses
+            product_list = data.get("products")
+            for json_product in product_list:
+                product = Product()
+                product.deserialize(json_product)
+                self.products.append(product)
         except KeyError as error:
-            raise DataValidationError(
-                "Invalid Shopcart: missing " + error.args[0]
-            )
+            raise DataValidationError("Invalid Account: missing " + error.args[0])
         except TypeError as error:
             raise DataValidationError(
-                "Invalid Shopcart: body of request contained bad or no data"
+                "Invalid Account: body of request contained" "bad or no data"
             )
         return self
 
