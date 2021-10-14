@@ -30,7 +30,6 @@ class Product(db.Model):
     shopcart_id = db.Column(db.Integer, db.ForeignKey('shopcart.customer_id'), nullable=False)
     quantity = db.Column(db.Integer, nullable=True)
     price  = db.Column(db.Float, nullable=False)
-    
     in_stock  = db.Column(db.Boolean(), nullable=False)
     wishlist = db.Column(db.Boolean(), nullable=False)
 
