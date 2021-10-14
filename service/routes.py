@@ -5,6 +5,7 @@ Shopcarts Service
 
 import os
 import sys
+print(sys.path)
 import logging
 from flask import Flask, jsonify, request, url_for, make_response, abort
 from . import status  # HTTP Status Codes
@@ -107,21 +108,21 @@ def update_cart(customer_id):
                 product.wishlist = False
             break
     else:
-        new_pord = Product()
-        new_pord.shopcart_id = int(shopcart['shopcart_id'])
-        new_pord.product_id = int(shopcart['product_id'])
-        new_pord.name = shopcart['name']
-        new_pord.quantity = int(shopcart['quantity'])
-        new_pord.price = float(shopcart['price'])
+        new_prod = Product()
+        new_prod.shopcart_id = int(shopcart['shopcart_id'])
+        new_prod.product_id = int(shopcart['product_id'])
+        new_prod.name = shopcart['name']
+        new_prod.quantity = int(shopcart['quantity'])
+        new_prod.price = float(shopcart['price'])
         if shopcart['in_stock'] == 'True':
-            new_pord.in_stock = True
+            new_prod.in_stock = True
         else:
-            new_pord.in_stock = False
+            new_prod.in_stock = False
         if shopcart['wishlist'] == 'True': 
-            new_pord.wishlist = True
+            new_prod.wishlist = True
         else:
-            new_pord.wishlist = False
-        shopcart['products'].append(new_pord)
+            new_prod.wishlist = False
+        shopcart['products'].append(new_pod)
     return (
         "Shopcart Item <itemid> updated",
         status.HTTP_202_ACCEPTED,
