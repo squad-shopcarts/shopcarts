@@ -8,11 +8,12 @@ import sys
 import logging
 from flask import Flask, jsonify, request, url_for, make_response, abort
 from . import status  # HTTP Status Codes
+from werkzeug.exceptions import NotFound
 
 # For this example we'll use SQLAlchemy, a popular ORM that supports a
 # variety of backends including SQLite, MySQL, and PostgreSQL
 from flask_sqlalchemy import SQLAlchemy
-from service.models import Shopcart, DataValidationError
+from models import Shopcart, Product, DataValidationError
 
 # Import Flask application
 from . import app
@@ -94,16 +95,16 @@ def update_cart(customer_id):
     shopcart = shopcart.serialize()
     for product in shopcart['products']:
         if product.product_id == int(shopcart['product_id']):
-            new_pord.quantity += int(shopcart['quantity'])
-            new_pord.price = float(shopcart['price'])
-            if shopcart['in_stock'] == 'True'
-                new_pord.in_stock = True
+            product.quantity += int(shopcart['quantity'])
+            product.price = float(shopcart['price'])
+            if shopcart['in_stock'] == 'True':
+                product.in_stock = True
             else:
-                new_pord.in_stock = False
-            if shopcart['wishlist'] == 'True'
-                new_pord.wishlist = True
+                product.in_stock = False
+            if shopcart['wishlist'] == 'True':
+                product.wishlist = True
             else:
-                new_pord.wishlist = False
+                product.wishlist = False
             break
     else:
         new_pord = Product()
@@ -112,14 +113,14 @@ def update_cart(customer_id):
         new_pord.name = shopcart['name']
         new_pord.quantity = int(shopcart['quantity'])
         new_pord.price = float(shopcart['price'])
-        if shopcart['in_stock'] == 'True'
-                new_pord.in_stock = True
-            else:
-                new_pord.in_stock = False
-            if shopcart['wishlist'] == 'True'  
-                new_pord.wishlist = True
-            else:
-                new_pord.wishlist = False
+        if shopcart['in_stock'] == 'True':
+            new_pord.in_stock = True
+        else:
+            new_pord.in_stock = False
+        if shopcart['wishlist'] == 'True': 
+            new_pord.wishlist = True
+        else:
+            new_pord.wishlist = False
         shopcart['products'].append(new_pord)
     return (
         "Shopcart Item <itemid> updated",
