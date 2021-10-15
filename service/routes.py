@@ -32,22 +32,24 @@ def index():
         status.HTTP_200_OK,
     )
 
-
+######################################################################
+# LIST ALL PRODUCTS IN SHOPCART
+######################################################################
 @app.route("/shopcarts/<int:customer_id>", methods=["GET"])
-def list_cart(customer_id):
+def list_products_in_cart(customer_id):
+    """
+    Retrieve products in shopcart with specific customer_id
+    This endpoint will return a shopcart products list based the customer_id in the path
+    """
+    app.logger.info("Request for all products in shopcart with id: %s", customer_id)
+    shopcart = Shopcart.find(customer_id)
+    if not shopcart:
+        raise NotFound("Shopcart with id '{}' was not found.".format(customer_id))
+    
+    products_list = shopcart.serialize()["products"]
+    return make_response(jsonify(products_list), status.HTTP_200_OK)
 
-    # Retrieve a shopcart
-    # This endpoint will return a shopcart item list based
-    # the id specified customer_id in the path
-
-    app.logger.info(f"Request for shopcart with id: {customer_id}")
-
-    return (
-        "Shopcart Item List",
-        status.HTTP_200_OK,
-    )
-
-
+ 
 @app.route("/shopcarts/<int:customer_id>", methods=["POST"])
 def create_cart(customer_id):
     """
