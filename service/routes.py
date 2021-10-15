@@ -95,7 +95,18 @@ def update_cart(customer_id):
     shopcart_info = shopcart.serialize()
     for json_product in shopcart_info['products']:
         if json_product['product_id'] == update_receive['product_id']:
-            # not finished
+            product = Product.find(json_product['id'])
+            product.quantity += int(update_receive['quantity'])
+            product.price = float(update_receive['price'])
+            if update_receive['in_stock'] == 'True':
+                product.in_stock = True
+            else:
+                product.in_stock = False
+            if update_receive['wishlist'] == 'True': 
+                product.wishlist = True
+            else:
+                product.wishlist = False
+            break
         else:
             new_product = Product()
             new_product.deserialize(update_receive)

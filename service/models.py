@@ -53,7 +53,7 @@ class Product(db.Model):
     def deserialize(self, data):
         try:
             self.shopcart_id = int(data["shopcart_id"])
-            self.product_id = int(data["name"])
+            self.product_id = int(data["product_id"])
             self.name = data["name"]
             self.quantity = int(data["quantity"])
             self.price = float(data["price"])
