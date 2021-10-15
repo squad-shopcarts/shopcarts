@@ -65,8 +65,8 @@ class Shopcart(db.Model):
     app = None
 
     # Table Schema
-
-    customer_id = db.Column(db.Integer, primary_key=True)
+    customer_id = None # only initialized when create is called
+    # customer_id = db.Column(db.Integer, primary_key=True)
     # total_price  = db.Column(db.Float, nullable=False)
     # total_quantity  = db.Column(db.Integer, nullable=False)
     products = db.relationship('Product', backref='shopcart', lazy=True)  
@@ -74,10 +74,11 @@ class Shopcart(db.Model):
     def __repr__(self):
         return "<Shopcart for user_id: %s>" % (self.customer_id)
 
-    def create(self):
+    def create(self, customer_id):
         """
         Creates a Shopcart to the database
         """
+        self.customer_id = customer_id
         logger.info("Creating shopcart for user_id: %s", self.customer_id)
         #self.id = None  # id must be none to generate next primary key
         db.session.add(self)

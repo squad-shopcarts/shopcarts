@@ -46,15 +46,24 @@ def list_cart():
 
 
 @app.route("/shopcarts/<userid>", methods=["POST"])
-def update_cart():
+def create_shopcarts():
     """
     Create a shopcart
     This endpoint will create a shopcart based the id specified in the path
     """
+
+    app.logger.info("Request to create a shopcart")
+    check_content_type("application/json")
+    shopcart = Shopcart()
+    shopcart.deserialize(request.get_json())
+    shopcart.create(userid)
+    message = shopcart.serialize()
+    # location_url = url_for("get_shopcarts", userid=userid, _external=True)
     app.logger.info(f"A shopcart for user with id: {userid} created")
-    return (
-        "Shopcart for user <userid> created",
-        status.HTTP_200_OK,
+    return make_response(
+        jsonify(message),
+        {f"Shopcart created for user: {userid}"},
+        status.HTTP_200_OK
     )
 
 ######################################################################
