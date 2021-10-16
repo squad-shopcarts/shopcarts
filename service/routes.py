@@ -46,8 +46,8 @@ def list_products_in_cart(customer_id):
     if not shopcart:
         raise NotFound("Shopcart with id '{}' was not found.".format(customer_id))
     
-    products_list = shopcart.serialize()["products"]
-    return make_response(jsonify(products_list), status.HTTP_200_OK)
+    product_list = shopcart.serialize()["product_list"]
+    return make_response(jsonify(product_list), status.HTTP_200_OK)
 
  
 @app.route("/shopcarts/<int:customer_id>", methods=["POST"])
@@ -56,7 +56,11 @@ def create_cart(customer_id):
     Create a shopcart
     This endpoint will create a shopcart based the id specified in the path
     """
-    app.logger.info(f"A shopcart for user with id: {customer_id} created")
+    app.logger.info(f"Request to create a shopcart for: {customer_id}")
+    shopcart = Shopcart.find(customer_id)
+    if not shopcart:
+        shopcart = Shopcart()
+        shopcart.customer_id = customer_id
     return (
         f"Shopcart for user {customer_id} created",
         status.HTTP_200_OK,
@@ -95,7 +99,7 @@ def update_cart(customer_id):
     if not shopcart:
         raise NotFound(f"Account with id '{customer_id}' was not found.")
     shopcart_info = shopcart.serialize()
-    for json_product in shopcart_info['products']:
+    for json_product in shopcart_info["product_list"]:
         if json_product['product_id'] == update_receive['product_id']:
             product = Product.find(json_product['id'])
             product.quantity += int(update_receive['quantity'])
@@ -112,7 +116,7 @@ def update_cart(customer_id):
         else:
             new_product = Product()
             new_product.deserialize(update_receive)
-            shopcart.products.append(new_product)
+            shopcart.product_list.append(new_product)
 
     return (
         "Shopcart Item <itemid> updated",
@@ -126,7 +130,11 @@ def delete_cart(customer_id):
     Delete a Shopcart
     This endpoint will delete a Shopcart based the id specified in the path
     """
-    app.logger.info(f"Shopcart for user: {customer_id} deleted")
+    app.logger.info(f"Request delete user: {customer_id}")
+    shopcart = Shopcart.find(customer_id)
+    if shopcart:
+        shopcart.delete()
+        app.logger.info(f"Shopcart for customer: {customer_id} deleted")
     return (
         f"No Shopcart for customer: {customer_id} anymore",
         status.HTTP_200_OK,

@@ -18,65 +18,83 @@ class DataValidationError(Exception):
 ######################################################################
 #  P R O D U C T   M O D E L
 ######################################################################
+
+
 class Product(db.Model):
     """
     Class that represents a Shopcart
     """
-
     app = None
-
     # Table Schema
     id = db.Column(db.Integer, primary_key=True)
-    shopcart_id = db.Column(db.Integer, db.ForeignKey('shopcart.customer_id'), nullable=False)
+    shopcart_id = db.Column(db.Integer, db.ForeignKey(
+        'shopcart.customer_id'), nullable=False)
+    product_id = db.Column(db.Integer, nullable=False)
+    product_name = db.Column(db.String(120), nullable=False)
     quantity = db.Column(db.Integer, nullable=True)
-    price  = db.Column(db.Float, nullable=False)
-    in_stock  = db.Column(db.Boolean(), nullable=False)
-    wishlist = db.Column(db.Boolean(), nullable=False)
-
+    price = db.Column(db.Float, nullable=False)
+    # in_stock = db.Column(db.Boolean(), nullable=False)
+    # wishlist = db.Column(db.Boolean(), nullable=False)
 
     def delete(self):
-        pass
+        logger.info("Deleting Product %s", self.id)
+        db.session.delete(self)
+        db.session.commit()
 
     def add(self):
         pass
 
     def serialize(self):
         """ Serializes a Shopcart into a dictionary """
-        return {"product_id": self.id,
+        return {"id": self.id,
+                "shopcart_id": self.shopcart_id,
+                "product_id": self.product_id,
+                "product_name": self.product_name,
                 "quantity": self.quantity,
-                "price": self.price,
-                "shopcart_id":self.shopcart_id,
-                 "in_stock": self.in_stock,
-                 "wishlist": self.wishlist
+                "price": self.price
+                # "in_stock": self.in_stock,
+                # "wishlist": self.wishlist
                 }
 
     def deserialize(self, data):
         try:
             self.shopcart_id = int(data["shopcart_id"])
             self.product_id = int(data["product_id"])
-            self.name = data["name"]
+            self.name = data["product_name"]
             self.quantity = int(data["quantity"])
             self.price = float(data["price"])
-            if data['in_stock'] == 'True':
-                self.in_stock = True
-            else:
-                self.in_stock = False
-            if data['wishlist'] == 'True': 
-                self.wishlist = True
-            else:
-                self.wishlist = False
-
+            # if data['in_stock'] == 'True':
+            #     self.in_stock = True
+            # else:
+            #     self.in_stock = False
+            # if data['wishlist'] == 'True':
+            #     self.wishlist = True
+            # else:
+            #     self.wishlist = False
         except KeyError as error:
-            raise DataValidationError("Invalid Address: missing " + error.args[0])
+            raise DataValidationError(
+                "Invalid Address: missing " + error.args[0])
         except TypeError as error:
             raise DataValidationError(
                 "Invalid Address: body of request contained" "bad or no data"
             )
         return self
 
+    ##################################################
+    # CLASS METHODS
+    ##################################################
+
+    @classmethod
+    def find(cls, by_id):
+        """ Finds a product by it's product.id """
+        logger.info("Processing lookup for Product.id %s ...", by_id)
+        return cls.query.get(by_id)
+
 ######################################################################
 #  S H O P C A R T   M O D E L
 ######################################################################
+
+
 class Shopcart(db.Model):
 
     """
@@ -85,21 +103,20 @@ class Shopcart(db.Model):
     app = None
 
     # Table Schema
-
     customer_id = db.Column(db.Integer, primary_key=True)
+    product_list = db.relationship('Product', backref='shopcart', lazy=True)
     # total_price  = db.Column(db.Float, nullable=False)
     # total_quantity  = db.Column(db.Integer, nullable=False)
-    products = db.relationship('Product', backref='shopcart', lazy=True)  
 
     def __repr__(self):
-        return "<Shopcart for user_id: %s>" % (self.customer_id)
+        return "<Shopcart for customer_id: %s>" % (self.customer_id)
 
     def create(self):
         """
         Creates a Shopcart to the database
         """
-        logger.info("Creating shopcart for user_id: %s", self.customer_id)
-        #self.id = None  # id must be none to generate next primary key
+        logger.info("Creating shopcart for customer_id: %s", self.customer_id)
+        # self.id = None  # id must be none to generate next primary key
         db.session.add(self)
         db.session.commit()
 
@@ -108,6 +125,7 @@ class Shopcart(db.Model):
         Updates a Shopcart to the database
         """
         logger.info("Saving %s", self.customer_id)
+        db.session.add(self)
         db.session.commit()
 
     def delete(self):
@@ -118,12 +136,12 @@ class Shopcart(db.Model):
 
     def serialize(self):
         """ Serializes a Shopcart into a dictionary """
-        shopcart =  {
+        shopcart = {
             "customer_id": self.customer_id,
-            "products":[]
+            "product_list": []
         }
-        for product in self.products:
-            shopcart["products"].append(product.serialize())
+        for product in self.product_list:
+            shopcart["product_list"].append(product.serialize())
         return shopcart
 
     def deserialize(self, data):
@@ -133,20 +151,25 @@ class Shopcart(db.Model):
             data (dict): A dictionary containing the resource data
         """
         try:
-            self.name = data["customer_id"]
+            self.customer_id = data["customer_id"]
             # handle inner list of addresses
-            product_list = data.get("products")
+            product_list = data.get("product_list")
             for json_product in product_list:
                 product = Product()
                 product.deserialize(json_product)
-                self.products.append(product)
+                self.product_list.append(product)
         except KeyError as error:
-            raise DataValidationError("Invalid Account: missing " + error.args[0])
+            raise DataValidationError(
+                "Invalid Account: missing " + error.args[0])
         except TypeError as error:
             raise DataValidationError(
                 "Invalid Account: body of request contained" "bad or no data"
             )
         return self
+
+    ##################################################
+    # CLASS METHODS
+    ##################################################
 
     @classmethod
     def init_db(cls, app):
@@ -158,17 +181,17 @@ class Shopcart(db.Model):
         app.app_context().push()
         db.create_all()  # make our sqlalchemy tables
 
+    @classmethod
+    def find(cls, customer_id):
+        """ Finds a shopcart by it's ID """
+        logger.info("Processing lookup for customer_id %s ...", customer_id)
+        return cls.query.get(customer_id)
+
     # @classmethod
     # def all(cls):
     #     """ Returns all of the YourResourceModels in the database """
     #     logger.info("Processing all YourResourceModels")
     #     return cls.query.all()
-
-    # @classmethod
-    # def find(cls, by_id):
-    #     """ Finds a YourResourceModel by it's ID """
-    #     logger.info("Processing lookup for id %s ...", by_id)
-    #     return cls.query.get(by_id)
 
     # @classmethod
     # def find_or_404(cls, by_id):
@@ -180,7 +203,7 @@ class Shopcart(db.Model):
     # def find_by_name(cls, name):
     #     """Returns all YourResourceModels with the given name
     #     Args:
-    #         name (string): the name of the YourResourceModels you want to match
+    #     name (string): the name of the YourResourceModels you want to match
     #     """
     #     logger.info("Processing name query for %s ...", name)
     #     return cls.query.filter(cls.name == name)

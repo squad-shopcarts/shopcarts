@@ -78,7 +78,7 @@ Vagrant.configure(2) do |config|
     apt-get -y autoremove
     
     # Need PostgreSQL development library to compile on arm64
-    apt-get install -y libpq-devzz
+    apt-get install -y libpq-dev
     
     # Create a Python3 Virtual Environment and Activate it in .profile
     sudo -H -u vagrant sh -c 'python3 -m venv ~/venv'
@@ -87,6 +87,8 @@ Vagrant.configure(2) do |config|
     # Install app dependencies in virtual environment as vagrant user
     sudo -H -u vagrant sh -c '. ~/venv/bin/activate && pip install -U pip && pip install wheel'
     sudo -H -u vagrant sh -c '. ~/venv/bin/activate && cd /vagrant && pip install -r requirements.txt'
+    # Create .env file if it doesn't exist
+    sudo -H -u vagrant sh -c 'cd /vagrant && if [ ! -f .env ]; then cp dot-env-example .env; fi'
   SHELL
 
   ######################################################################
