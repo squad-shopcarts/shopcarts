@@ -60,7 +60,7 @@ def create_cart(customer_id):
     Create a shopcart
     This endpoint will create a shopcart based the id specified in the path
     """
-    
+       
         return (
             f"Shopcart for user {customer_id} existed",
             status.HTTP_200_OK,
@@ -124,7 +124,15 @@ def delete_cart(customer_id):
     Delete a Shopcart
     This endpoint will delete a Shopcart based the id specified in the path
     """
-    
+    app.logger.info(f"Request delete user: {customer_id}")
+    shopcart = Shopcart.find(customer_id)
+    if shopcart:
+        shopcart_info = shopcart.serialize()
+        for json_product in shopcart_info["product_list"]:
+            product = Product.find(json_product["id"])
+            product.delete()
+        shopcart.delete()
+        app.logger.info(f"Shopcart for customer: {customer_id} deleted")
     return (
         f"No Shopcart for customer: {customer_id} anymore",
         status.HTTP_200_OK,
