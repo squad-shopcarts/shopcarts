@@ -41,8 +41,21 @@ class Product(db.Model):
         db.session.delete(self)
         db.session.commit()
 
-    def add(self):
-        pass
+    def create(self):
+        """
+        Creates a Product to the database
+        """
+        logger.info("Creating %s", self.id)
+        db.session.add(self)
+        db.session.commit()
+
+    def update(self):
+        """
+        Updates a product to the database
+        """
+        logger.info("Saving %s", self.id)
+        db.session.commit()
+
 
     def serialize(self):
         """ Serializes a Shopcart into a dictionary """
@@ -58,9 +71,9 @@ class Product(db.Model):
 
     def deserialize(self, data):
         try:
-            self.shopcart_id = int(data["shopcart_id"])
+            self.shopcart_id = int(data["customer_id"])
             self.product_id = int(data["product_id"])
-            self.name = data["product_name"]
+            self.product_name = data["product_name"]
             self.quantity = int(data["quantity"])
             self.price = float(data["price"])
             # if data['in_stock'] == 'True':
@@ -120,12 +133,11 @@ class Shopcart(db.Model):
         db.session.add(self)
         db.session.commit()
 
-    def save(self):
+    def update(self):
         """
         Updates a Shopcart to the database
         """
         logger.info("Saving %s", self.customer_id)
-        db.session.add(self)
         db.session.commit()
 
     def delete(self):
@@ -157,6 +169,7 @@ class Shopcart(db.Model):
             for json_product in product_list:
                 product = Product()
                 product.deserialize(json_product)
+                product.create()
                 self.product_list.append(product)
         except KeyError as error:
             raise DataValidationError(
