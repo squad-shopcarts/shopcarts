@@ -56,13 +56,15 @@ def list_products_in_cart(customer_id):
 
 @app.route("/shopcarts/<int:customer_id>", methods=["POST"])
 def create_cart(customer_id):
+    app.logger.info("Request to create a shopcart")
+    shopcart = Shopcart()
     """
     Create a shopcart
     This endpoint will create a shopcart based the id specified in the path
     """
     
         return (
-            f"Shopcart for user {customer_id} existed",
+            f"Shopcart for user {customer_id} exists",
             status.HTTP_200_OK,
         )
 

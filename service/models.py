@@ -129,7 +129,7 @@ class Shopcart(db.Model):
         Creates a Shopcart to the database
         """
         logger.info("Creating shopcart for customer_id: %s", self.customer_id)
-        # self.id = None  # id must be none to generate next primary key
+        self.customer_id = None  # id must be none to generate next primary key
         db.session.add(self)
         db.session.commit()
 
