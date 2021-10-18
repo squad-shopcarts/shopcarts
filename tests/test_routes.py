@@ -65,7 +65,6 @@ class TestYourResourceServer(TestCase):
         resp = self.app.post(
                 f"{BASE_URL}/{test_shopcart.customer_id}", json=test_shopcart.serialize(), content_type=CONTENT_TYPE_JSON
         )
-        print("HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", test_shopcart.customer_id, resp.get_json())
         new_shopcart = resp.get_json()
         test_shopcart.customer_id = new_shopcart["customer_id"]
         test_shopcart.products_list = test_products_list
