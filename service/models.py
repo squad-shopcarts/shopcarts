@@ -10,6 +10,9 @@ logger = logging.getLogger("flask.app")
 # Create the SQLAlchemy object to be initialized later in init_db()
 db = SQLAlchemy()
 
+# def init_db(app):
+#     """Initialies the SQLAlchemy app"""
+#     Pet.init_db(app)
 
 class DataValidationError(Exception):
     """ Used for an data validation errors when deserializing """
@@ -33,8 +36,8 @@ class Product(db.Model):
     product_name = db.Column(db.String(120), nullable=False)
     quantity = db.Column(db.Integer, nullable=True)
     price = db.Column(db.Float, nullable=False)
-    # in_stock = db.Column(db.Boolean(), nullable=False)
-    # wishlist = db.Column(db.Boolean(), nullable=False)
+    in_stock = db.Column(db.Boolean(), nullable=False)
+    wishlist = db.Column(db.Boolean(), nullable=False)
 
     def delete(self):
         logger.info("Deleting Product %s", self.id)
@@ -64,9 +67,9 @@ class Product(db.Model):
                 "product_id": self.product_id,
                 "product_name": self.product_name,
                 "quantity": self.quantity,
-                "price": self.price
-                # "in_stock": self.in_stock,
-                # "wishlist": self.wishlist
+                "price": self.price,
+                "in_stock": self.in_stock,
+                "wishlist": self.wishlist
                 }
 
     def deserialize(self, data):
@@ -129,7 +132,7 @@ class Shopcart(db.Model):
         Creates a Shopcart to the database
         """
         logger.info("Creating shopcart for customer_id: %s", self.customer_id)
-        # self.id = None  # id must be none to generate next primary key
+        self.customer_id = None  # id must be none to generate next primary key
         db.session.add(self)
         db.session.commit()
 

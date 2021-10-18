@@ -60,11 +60,18 @@ def create_cart(customer_id):
     Create a shopcart
     This endpoint will create a shopcart based the id specified in the path
     """
+    app.logger.info("Request to create a shopcart")
+    check_content_type("application/json")
+    shopcart = Shopcart()
+    shopcart.deserialize(request.get_json())
+    message = shopcart.serialize()
+    shopcart.create()
+
+
+    app.logger.info("Shopcart with ID [%s] created.", shopcart.customer_id)
     
-        return (
-            f"Shopcart for user {customer_id} existed",
-            status.HTTP_200_OK,
-        )
+    return make_response(
+        jsonify(message), status.HTTP_201_CREATED)
 
 ######################################################################
 # RETRIEVE A SHOPCART
@@ -139,3 +146,14 @@ def init_db():
     """ Initialies the SQLAlchemy app """
     global app
     Shopcart.init_db(app)
+
+def check_content_type(media_type):
+    """Checks that the media type is correct"""
+    content_type = request.headers.get("Content-Type")
+    if content_type and content_type == media_type:
+        return
+    app.logger.error("Invalid Content-Type: %s", content_type)
+    abort(
+        status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+        "Content-Type must be {}".format(media_type),
+    )
