@@ -9,10 +9,17 @@ class ProductFactory(factory.Factory):
     class Meta:
         model = Product
     
-    id = factory.Sequence(lambda n: n)
-    shopcart_id = factory.Sequence(lambda n: n)
-    quantity = factory.Sequence(lambda n: n)
-    price  = factory.Sequence(lambda n: n)
+    id = 0
+    #shopcart_id = factory.Sequence(lambda n: n)
+    #product_id = factory.Sequence(lambda n: n)
+    product_name = FuzzyChoice(choices=["apple", "banana", "peach"])
+    #quantity = factory.Sequence(lambda n: n)
+    #price  = factory.Sequence(lambda n: n)
+
+    shopcart_id = 3
+    product_id = 4
+    quantity = 5
+    price  = 6
     
     in_stock  = FuzzyChoice(choices=[True, False])
     wishlist = FuzzyChoice(choices=[True, False])
@@ -21,5 +28,5 @@ class ShopcartFactory(factory.Factory):
     class Meta:
         model = Shopcart
 
-    customer_id = factory.Sequence(lambda n: n)
-    products = []
+    customer_id = 0
+    product_list = []

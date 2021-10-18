@@ -37,6 +37,10 @@ class TestYourResourceServer(TestCase):
         """ This runs before each test """
         self.app = app.test_client()
 
+######################################################################
+#  H E L P E R   M E T H O D S
+######################################################################
+
     def _create_products_list(self, count):
         """Create a list with count number of random products"""
         products = []
@@ -51,6 +55,8 @@ class TestYourResourceServer(TestCase):
             new_product = resp.get_json()
             test_product.id = new_product["id"]
             test_product.shopcart_id = new_product["shopcart_id"]
+            test_product.product_id = new_product["product_id"]
+            test_product.product_name = new_product["product_name"]
             test_product.price = new_product["price"]
             test_product.quantity = new_product["quantity"]
             test_product.in_stock = new_product["in_stock"]
@@ -67,17 +73,13 @@ class TestYourResourceServer(TestCase):
         )
         new_shopcart = resp.get_json()
         test_shopcart.customer_id = new_shopcart["customer_id"]
-        test_shopcart.products_list = test_products_list
+        test_shopcart.product_list = test_products_list
         shopcarts.append(test_shopcart)
         return shopcarts
 
-    def tearDown(self):
-        """ This runs after each test """
-        pass
-
-    ######################################################################
-    #  P L A C E   T E S T   C A S E S   H E R E
-    ######################################################################
+######################################################################
+#  P L A C E   T E S T   C A S E S   H E R E
+######################################################################
 
     def test_index(self):
         """ Test index call """
@@ -86,8 +88,9 @@ class TestYourResourceServer(TestCase):
 
     def test_list_products_in_cart(self):
         
+        """List all product of a shopcart"""
         products = self._create_products_list(5)
-        test_shopcart = self._create_shopcarts(products)
+        test_shopcart = self._create_shopcarts(products)[0]
         resp = self.app.get(
             "/shopcarts/{}".format(test_shopcart.customer_id), content_type=CONTENT_TYPE_JSON
         )
@@ -98,7 +101,11 @@ class TestYourResourceServer(TestCase):
     def test_get_shopcarts(self):
         """Get a single Shopcart"""
         # get the id of a shopcart
-        test_shopcart = self._create_shopcarts(1)[0]
+
+        # Mucheng's version:
+        products = self._create_products_list(5)
+        test_shopcart = self._create_shopcarts(products)[0]
+        # test_shopcart = self._create_shopcarts(1)[0]
         resp = self.app.get(
             "/shopcarts/{}".format(test_shopcart.customer_id), content_type=CONTENT_TYPE_JSON
         )
