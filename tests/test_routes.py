@@ -1,5 +1,5 @@
 """
-TestYourResourceModel API Service Test Suite
+Shopcart API Service Test Suite
 
 Test cases can be run with the following:
   nosetests -v --with-spec --spec-color
@@ -58,39 +58,19 @@ class TestYourResourceServer(TestCase):
             products.append(test_product)
         return products
     
-    def _create_shopcart(self, test_products_list):
+    def _create_shopcarts(self, test_products_list):
         """Create a random shopcart with existing product list"""
+        shopcarts = []
         test_shopcart = ShopcartFactory()
         resp = self.app.post(
-                BASE_URL, json=test_shopcart.serialize(), content_type=CONTENT_TYPE_JSON
-            )
+                f"{BASE_URL}/{test_shopcart.customer_id}", json=test_shopcart.serialize(), content_type=CONTENT_TYPE_JSON
+        )
+        print("HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", test_shopcart.customer_id, resp.get_json())
         new_shopcart = resp.get_json()
         test_shopcart.customer_id = new_shopcart["customer_id"]
-        test_shopcart.products = test_products_list
-        return test_shopcart
-
-    def test_list_products_in_cart(self):
-        
-        products = self._create_products_list(5)
-        test_shopcart = self._create_shopcart(products)
-        resp = self.app.get(
-            "/shopcarts/{}".format(test_shopcart.customer_id), content_type=CONTENT_TYPE_JSON
-        )
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertEquals( len(resp.data) > 0)
-        
-
-    def test_get_shopcarts(self):
-        """Get a single Shopcart"""
-        # get the id of a shopcart
-        test_shopcart = self._create_shopcarts(1)[0]
-        resp = self.app.get(
-            "/shopcarts/{}".format(test_shopcart.id), content_type=CONTENT_TYPE_JSON
-        )
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        data = resp.get_json()
-        # TODO: WE DONT HAVE SHOPCART NAME FOR NOW
-        # self.assertEqual(data["name"], test_shopcart.name)
+        test_shopcart.products_list = test_products_list
+        shopcarts.append(test_shopcart)
+        return shopcarts
 
     def tearDown(self):
         """ This runs after each test """
@@ -104,3 +84,42 @@ class TestYourResourceServer(TestCase):
         """ Test index call """
         resp = self.app.get("/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_list_products_in_cart(self):
+        
+        products = self._create_products_list(5)
+        test_shopcart = self._create_shopcarts(products)
+        resp = self.app.get(
+            "/shopcarts/{}".format(test_shopcart.customer_id), content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEquals( len(resp.data) > 0)
+        
+
+    def test_get_shopcarts(self):
+        """Get a single Shopcart"""
+        # get the id of a shopcart
+        test_shopcart = self._create_shopcarts(1)[0]
+        resp = self.app.get(
+            "/shopcarts/{}".format(test_shopcart.customer_id), content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        # TODO: WE DONT HAVE SHOPCART NAME FOR NOW
+        # self.assertEqual(data["name"], test_shopcart.name)
+
+    def test_create_shopcart(self):
+
+        """Create a new Shopcart"""
+        test_shopcart = ShopcartFactory()
+        logging.debug(test_shopcart)
+        resp = self.app.post(
+            f"{BASE_URL}/{test_shopcart.customer_id}", json=test_shopcart.serialize(), content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        # Check the data is correct
+        new_shopcart = resp.get_json()
+        self.assertEqual(new_shopcart["customer_id"], test_shopcart.customer_id, "Customer ids do not match")
+
+
+
