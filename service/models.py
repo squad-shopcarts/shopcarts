@@ -10,9 +10,9 @@ logger = logging.getLogger("flask.app")
 # Create the SQLAlchemy object to be initialized later in init_db()
 db = SQLAlchemy()
 
-def init_db(app):
-    """Initialies the SQLAlchemy app"""
-    Pet.init_db(app)
+# def init_db(app):
+#     """Initialies the SQLAlchemy app"""
+#     Pet.init_db(app)
 
 
 class DataValidationError(Exception):
