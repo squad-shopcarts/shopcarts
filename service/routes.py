@@ -64,7 +64,7 @@ def create_shopcart():
     shopcart.create()
     location_url = url_for("get_shopcarts", customer_id=shopcart.customer_id, _external=True)
     return make_response(
-        jsonify(message), status.HTTP_201_CREATED, {"Location": location_url})
+        jsonify(shopcart.serialize()), status.HTTP_201_CREATED, {"Location": location_url})
 
 ######################################################################
 # RETRIEVE A SHOPCART
@@ -95,28 +95,42 @@ def update_cart(customer_id):
     """
     app.logger.info("Update for shopcart with id: %s", customer_id)
     update_receive = request.get_json()
+    logging.debug("routesget:"+str(update_receive))
     shopcart = Shopcart.find(customer_id)
     if not shopcart:
         return (f"Account with id {customer_id} was not found",
             status.HTTP_404_NOT_FOUND)
     shopcart_info = shopcart.serialize()
-    for json_product in shopcart_info["product_list"]:
-        if json_product["product_id"] == int(update_receive["product_id"]):
-            update_product = Product.find(int(json_product["id"]))
-            update_product.quantity += json_product["quantity"]
-            update_product.price = json_product["price"]
-            update_product.update()
-            break
-    else:
+    if len(shopcart_info["product_list"]) == 0:
         new_product = Product()
         new_product.deserialize(update_receive)
         new_product.create()
-        shopcart.product_list.append(new_product)
+        logging.debug("routesnewproduct:"+str(shopcart.serialize()))
         shopcart.update()
+    else :
+        for json_product in shopcart_info["product_list"]:
+            if json_product["product_id"] == update_receive["product_id"]:
+                update_product = Product.find(int(json_product["id"]))
 
-    return (
-        f"Shopcart {customer_id} updated",
-        status.HTTP_202_ACCEPTED)
+                update_product.quantity += int(update_receive["quantity"])
+                update_product.price = float(update_receive["price"])
+                logging.debug("routesupdateexist:" +
+                              str(update_receive["price"]))
+                update_product.in_stock = update_receive["in_stock"]
+                update_product.wishlist = update_receive["wishlist"]
+                update_product.update()
+                break
+        else:
+            new_product = Product()
+            new_product.deserialize(update_receive)
+            new_product.create()
+            shopcart.product_list.append(new_product)
+            shopcart.update()
+
+    return make_response(
+        shopcart.serialize(),
+        status.HTTP_202_ACCEPTED
+    )
 
 
 # @app.route("/shopcarts/<int:customer_id>", methods=["DELETE"])
