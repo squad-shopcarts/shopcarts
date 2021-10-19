@@ -119,17 +119,34 @@ def update_cart(customer_id):
         status.HTTP_202_ACCEPTED)
 
 
+# @app.route("/shopcarts/<int:customer_id>", methods=["DELETE"])
+# def delete_cart(customer_id):
+#     """
+#     Delete a Shopcart
+#     This endpoint will delete a Shopcart based the id specified in the path
+#     """
+    
+#     return (
+#         f"No Shopcart for customer: {customer_id} anymore",
+#         status.HTTP_200_OK,
+#     )
+
+######################################################################
+#  DELETE A SHOPCART
+######################################################################
 @app.route("/shopcarts/<int:customer_id>", methods=["DELETE"])
-def delete_cart(customer_id):
+def delete_carts(customer_id):
     """
     Delete a Shopcart
-    This endpoint will delete a Shopcart based the id specified in the path
+    This endpoint will delete a shopcart based the customer_id specified in the path
     """
-    
-    return (
-        f"No Shopcart for customer: {customer_id} anymore",
-        status.HTTP_200_OK,
-    )
+    app.logger.info("Request to delete a shopcart with customer_id: %s", customer_id)
+    shopcart = Shopcart.find(customer_id)
+    if shopcart:
+        shopcart.delete()
+        app.logger.info('Shopcart with customer_id [%s] was deleted', customer_id)
+    return make_response("", status.HTTP_204_NO_CONTENT)
+
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S

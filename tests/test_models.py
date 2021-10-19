@@ -7,6 +7,7 @@ import unittest
 import os
 from service.models import Shopcart, Product, DataValidationError, db
 from service import app
+from .factories import ShopcartFactory
 
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgres://postgres:postgres@localhost:5432/testdb"
@@ -53,3 +54,11 @@ class TestShopcartModel(unittest.TestCase):
         shopcart = Shopcart()
         self.assertEqual(shopcart.customer_id, None)
 
+    def test_delete_a_shopcart(self):
+        """Delete a customer shopcart"""
+        shopcart = ShopcartFactory()
+        shopcart.create()
+        self.assertEqual(len(Shopcart.all()), 1)
+        # delete the order and make sure it isn't in the database
+        shopcart.delete()
+        self.assertEqual(len(Shopcart.all()), 0)
