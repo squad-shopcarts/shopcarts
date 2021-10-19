@@ -203,11 +203,11 @@ class Shopcart(db.Model):
         logger.info("Processing lookup for customer_id %s ...", customer_id)
         return cls.query.get(customer_id)
 
-    # @classmethod
-    # def all(cls):
-    #     """ Returns all of the YourResourceModels in the database """
-    #     logger.info("Processing all YourResourceModels")
-    #     return cls.query.all()
+    @classmethod
+    def all(cls):
+        """ Returns all of the Shopcarts in the database """
+        logger.info("Processing all Shopcarts")
+        return cls.query.all()
 
     # @classmethod
     # def find_or_404(cls, by_id):
