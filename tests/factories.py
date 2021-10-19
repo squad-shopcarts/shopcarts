@@ -11,9 +11,10 @@ class ProductFactory(factory.Factory):
     
     id = factory.Sequence(lambda n: n)
     shopcart_id = factory.Sequence(lambda n: n)
+    product_id = factory.Sequence(lambda n: n)
+    product_name = FuzzyChoice(choices=["apple", "banana", "peach"])
     quantity = factory.Sequence(lambda n: n)
     price  = factory.Sequence(lambda n: n)
-    
     in_stock  = FuzzyChoice(choices=[True, False])
     wishlist = FuzzyChoice(choices=[True, False])
 
@@ -22,4 +23,4 @@ class ShopcartFactory(factory.Factory):
         model = Shopcart
 
     customer_id = factory.Sequence(lambda n: n)
-    products = []
+    product_list = []
