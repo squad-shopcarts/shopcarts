@@ -139,7 +139,7 @@ class TestYourResourceServer(TestCase):
         
         # Check the data is correct
         new_shopcart = resp.get_json()
-        self.assertEqual(new_shopcart["customer_id"], test_shopcart.customer_id, "Customer ids do not match")
+        self.assertEqual(new_shopcart["product_list"], test_shopcart.product_list, "Product list do not match")
 
 
     def test_delete_shopcart(self):

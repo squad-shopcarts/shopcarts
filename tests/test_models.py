@@ -30,7 +30,8 @@ class TestShopcartModel(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        db.session.close()
+        """ This runs once after the entire test suite """
+        pass
 
     def setUp(self):
         db.drop_all()  # clean up the last tests
@@ -94,3 +95,16 @@ class TestShopcartModel(unittest.TestCase):
         new_shopcart.deserialize(shopcart.serialize())
         logging.debug(shopcart.serialize())
         self.assertEqual(len(new_shopcart.product_list), 1)
+
+    def test_add_a_shopcart(self):
+        """Create a shopcart and add it to the database"""
+        shopcarts = Shopcart.all()
+        self.assertEqual(shopcarts, [])
+        shopcart = Shopcart(
+            product_list = []
+        )
+        self.assertTrue(shopcart != None)
+        shopcart.create()
+        self.assertEqual(shopcart.customer_id, 1)
+        shopcarts = Shopcart.all()
+        self.assertEqual(len(shopcarts), 1)
