@@ -49,7 +49,7 @@ class Product(db.Model):
         Creates a Product to the database
         """
         logger.info("Creating %s", self.id)
-        self.id  = None
+        self.id = None
         db.session.add(self)
         db.session.commit()
 
@@ -74,7 +74,7 @@ class Product(db.Model):
                 }
 
     def deserialize(self, data):
-        logging.debug(data["shopcart_id"])
+        # logging.debug(data["shopcart_id"])
         try:
             self.shopcart_id = int(data["shopcart_id"])
             self.product_id = int(data["product_id"])

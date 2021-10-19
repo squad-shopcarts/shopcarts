@@ -18,7 +18,6 @@ DATABASE_URI = os.getenv(
 ######################################################################
 class TestShopcartModel(unittest.TestCase):
     """ Test Cases for Shopcart Model """
-
     @classmethod
     def setUpClass(cls):
         """This runs once before the entire test suite"""
@@ -84,7 +83,6 @@ class TestShopcartModel(unittest.TestCase):
 
     def test_deserialize_a_shopcart(self):
         """Deserialize a shopcart"""
-        #create the shopcart
         shopcart = ShopcartFactory()
         shopcart.create()
         product = ProductFactory()
@@ -95,6 +93,26 @@ class TestShopcartModel(unittest.TestCase):
         new_shopcart.deserialize(shopcart.serialize())
         logging.debug(shopcart.serialize())
         self.assertEqual(len(new_shopcart.product_list), 1)
+    
+    def test_deserialize_with_key_error(self):
+        """ Deserialize an shopcart with a KeyError """
+        shopcart = Shopcart()
+        self.assertRaises(DataValidationError, shopcart.deserialize, {})
+
+    # def test_deserialize_with_type_error(self):
+    #     """ Deserialize an shopcart with a TypeError """
+    #     shopcart = Shopcart()
+    #     self.assertRaises(DataValidationError, shopcart.deserialize, [])
+
+    def test_deserialize_product_key_error(self):
+        """ Deserialize an product with a KeyError """
+        product = Product()
+        self.assertRaises(DataValidationError, product.deserialize, {})
+
+    def test_deserialize_product_type_error(self):
+        """ Deserialize an product with a TypeError """
+        product = Product()
+        self.assertRaises(DataValidationError, product.deserialize, [])
 
     def test_add_a_shopcart(self):
         """Create a shopcart and add it to the database"""
