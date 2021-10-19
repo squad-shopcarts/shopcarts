@@ -142,4 +142,16 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(new_shopcart["customer_id"], test_shopcart.customer_id, "Customer ids do not match")
 
 
-
+    def test_delete_shopcart(self):
+        """Delete a shopcart"""
+        test_shopcart = self._create_shopcarts(1)[0]
+        resp = self.app.delete(
+            "{0}/{1}".format(BASE_URL, test_shopcart.customer_id), content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(len(resp.data), 0)
+        # make sure they are deleted
+        resp = self.app.get(
+            "{0}/{1}".format(BASE_URL, test_shopcart.customer_id), content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
