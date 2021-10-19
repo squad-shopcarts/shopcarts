@@ -24,7 +24,7 @@ print(sys.path)
 ######################################################################
 
 
-@app.route("/shopcarts")
+@app.route("/")
 def index():
     """ Root URL response """
     return (
@@ -33,32 +33,28 @@ def index():
     )
 
 ######################################################################
-# LIST ALL PRODUCTS IN SHOPCART
+# LIST ALL SHOPCARTS
 ######################################################################
 
 
-@app.route("/shopcarts/<int:customer_id>", methods=["GET"])
-def list_products_in_cart(customer_id):
+@app.route("/shopcarts", methods=["GET"])
+def list_shopcarts():
     """
-    Retrieve products in shopcart with specific customer_id
-    This endpoint will return a shopcart products list based the customer_id in the path
+    Retrieve shopcart if there is customer_id
+    Or just retrieve all shopcarts as a list
     """
     app.logger.info(
-        "Request for all products in shopcart with id: %s", customer_id)
-    shopcart = Shopcart.find(customer_id)
-    if not shopcart:
-        return(f"Shopcart with id {customer_id} was not found",
-               status.HTTP_404_NOT_FOUND)
+        "Request for all shopcarts" )
+    shopcarts = Shopcart.all()
 
-    product_list = shopcart.serialize()# ["product_list"]
-    return make_response(jsonify(product_list), status.HTTP_200_OK)
+    results = [ shopcart.serialize() for shopcart in shopcarts]
+    return make_response(jsonify(results), status.HTTP_200_OK)
 
-
-@app.route("/shopcarts/<int:customer_id>", methods=["POST"])
-def create_cart(customer_id):
+@app.route("/shopcarts", methods=["POST"])
+def create_shopcart():
     """
     Create a shopcart
-    This endpoint will create a shopcart based the id specified in the path
+    This endpoint will create a shopcart 
     """
     app.logger.info("Request to create a shopcart")
     check_content_type("application/json")
@@ -66,19 +62,16 @@ def create_cart(customer_id):
     shopcart.deserialize(request.get_json())
     message = shopcart.serialize()
     shopcart.create()
-
-
-    app.logger.info("Shopcart with ID [%s] created.", shopcart.customer_id)
-    
+    location_url = url_for("get_shopcarts", customer_id=shopcart.customer_id, _external=True)
     return make_response(
-        jsonify(message), status.HTTP_201_CREATED)
+        jsonify(message), status.HTTP_201_CREATED, {"Location": location_url})
 
 ######################################################################
 # RETRIEVE A SHOPCART
 ######################################################################
 
 
-@app.route("/shopcatrs/<int:customer_id>", methods=["GET"])
+@app.route("/shopcarts/<int:customer_id>", methods=["GET"])
 def get_shopcarts(customer_id):
     """
     Retrieve a single Shopcart
@@ -100,6 +93,7 @@ def update_cart(customer_id):
     Update a shopcart
     This endpoint will update a shopcart based on the body it post
     """
+    app.logger.info("Update for shopcart with id: %s", customer_id)
     update_receive = request.get_json()
     shopcart = Shopcart.find(customer_id)
     if not shopcart:
