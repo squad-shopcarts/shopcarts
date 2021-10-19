@@ -49,6 +49,7 @@ class Product(db.Model):
         Creates a Product to the database
         """
         logger.info("Creating %s", self.id)
+        self.id  = None
         db.session.add(self)
         db.session.commit()
 
@@ -73,20 +74,16 @@ class Product(db.Model):
                 }
 
     def deserialize(self, data):
+        logging.debug(data["shopcart_id"])
         try:
-            self.shopcart_id = int(data["customer_id"])
+            self.shopcart_id = int(data["shopcart_id"])
             self.product_id = int(data["product_id"])
             self.product_name = data["product_name"]
             self.quantity = int(data["quantity"])
             self.price = float(data["price"])
-            # if data['in_stock'] == 'True':
-            #     self.in_stock = True
-            # else:
-            #     self.in_stock = False
-            # if data['wishlist'] == 'True':
-            #     self.wishlist = True
-            # else:
-            #     self.wishlist = False
+            self.in_stock = data["in_stock"]
+            self.wishlist = data["wishlist"]
+            logging.debug(self.wishlist)
         except KeyError as error:
             raise DataValidationError(
                 "Invalid Address: missing " + error.args[0])
@@ -166,7 +163,7 @@ class Shopcart(db.Model):
             data (dict): A dictionary containing the resource data
         """
         try:
-            self.customer_id = data["customer_id"]
+            # self.customer_id = data["customer_id"]
             # handle inner list of addresses
             product_list = data.get("product_list")
             for json_product in product_list:

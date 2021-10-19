@@ -155,3 +155,51 @@ class TestYourResourceServer(TestCase):
             "{0}/{1}".format(BASE_URL, test_shopcart.customer_id), content_type=CONTENT_TYPE_JSON
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_update_shopcart(self):
+        """Update a shopcart"""
+
+        #create the shopcart
+        test_cart = ShopcartFactory()
+        logging.debug(test_cart.serialize())
+        resp = self.app.post(
+            "/shopcarts", 
+            json=test_cart.serialize(), 
+            content_type=CONTENT_TYPE_JSON
+        )
+
+        #test add a product price to the shopcart
+        test_cart.customer_id = resp.get_json()["customer_id"]
+        test_product = ProductFactory()
+        test_product.shopcart_id = test_cart.customer_id
+        logging.debug(test_product.serialize())
+        resp = self.app.put(
+            "/shopcarts/{}".format(test_cart.customer_id), 
+            json=test_product.serialize(), 
+            content_type=CONTENT_TYPE_JSON
+        )
+        logging.debug(resp.get_json)
+        self.assertEqual(resp.status_code, status.HTTP_202_ACCEPTED)
+        
+        #test update product price in the shopcart
+        test_product.price = 10
+        resp = self.app.put(
+            "/shopcarts/{}".format(test_cart.customer_id),
+            json=test_product.serialize(),
+            content_type=CONTENT_TYPE_JSON
+        )
+        logging.debug(resp.get_json())
+        self.assertEqual(resp.status_code, status.HTTP_202_ACCEPTED)
+        self.assertEqual(resp.get_json()["product_list"][0]["price"], 10.0)
+        
+        #test add one more product to the shopcart
+        test_product = ProductFactory()
+        test_product.shopcart_id = test_cart.customer_id
+        resp = self.app.put(
+            "/shopcarts/{}".format(test_cart.customer_id),
+            json=test_product.serialize(),
+            content_type=CONTENT_TYPE_JSON
+        )
+        logging.debug(resp.get_json())
+        self.assertEqual(resp.status_code, status.HTTP_202_ACCEPTED)
+        self.assertEqual(len(resp.get_json()["product_list"]), 2)
