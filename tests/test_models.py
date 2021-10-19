@@ -99,10 +99,10 @@ class TestShopcartModel(unittest.TestCase):
         shopcart = Shopcart()
         self.assertRaises(DataValidationError, shopcart.deserialize, {})
 
-    # def test_deserialize_with_type_error(self):
-    #     """ Deserialize an shopcart with a TypeError """
-    #     shopcart = Shopcart()
-    #     self.assertRaises(DataValidationError, shopcart.deserialize, [])
+    def test_deserialize_with_type_error(self):
+        """ Deserialize an shopcart with a TypeError """
+        shopcart = Shopcart()
+        self.assertRaises(DataValidationError, shopcart.deserialize, [])
 
     def test_deserialize_product_key_error(self):
         """ Deserialize an product with a KeyError """

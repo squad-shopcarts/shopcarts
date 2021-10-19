@@ -164,7 +164,7 @@ class Shopcart(db.Model):
         """
         try:
             # handle inner list of addresses
-            product_list = data.get("product_list")
+            product_list = data["product_list"]
             for json_product in product_list:
                 product = Product()
                 product.deserialize(json_product)
