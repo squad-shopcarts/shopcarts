@@ -163,7 +163,6 @@ class Shopcart(db.Model):
             data (dict): A dictionary containing the resource data
         """
         try:
-            # self.customer_id = data["customer_id"]
             # handle inner list of addresses
             product_list = data.get("product_list")
             for json_product in product_list:

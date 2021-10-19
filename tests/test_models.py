@@ -7,7 +7,7 @@ import unittest
 import os
 from service.models import Shopcart, Product, DataValidationError, db
 from service import app
-from .factories import ShopcartFactory
+from .factories import ShopcartFactory, ProductFactory
 
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgres://postgres:postgres@localhost:5432/testdb"
@@ -54,6 +54,17 @@ class TestShopcartModel(unittest.TestCase):
         shopcart = Shopcart()
         self.assertEqual(shopcart.customer_id, None)
 
+    def test_update_a_shopcart(self):
+        """Update a customer shopcart"""
+        shopcart = ShopcartFactory()
+        shopcart.create()
+        self.assertEqual(len(Shopcart.all()), 1)
+        product = ProductFactory()
+        product.shopcart_id = shopcart.customer_id
+        shopcart.product_list.append(product)
+        shopcart.update()
+        self.assertEqual(len(shopcart.product_list),1)
+
     def test_delete_a_shopcart(self):
         """Delete a customer shopcart"""
         shopcart = ShopcartFactory()
@@ -62,3 +73,24 @@ class TestShopcartModel(unittest.TestCase):
         # delete the order and make sure it isn't in the database
         shopcart.delete()
         self.assertEqual(len(Shopcart.all()), 0)
+
+    def test_Serialize_a_shopcart(self):
+        """Serialize a shopcart"""
+        #create the shopcart
+        test_cart = ShopcartFactory()
+        serialized_info = test_cart.serialize()
+        self.assertEqual(serialized_info["customer_id"], test_cart.customer_id)
+
+    def test_deserialize_a_shopcart(self):
+        """Deserialize a shopcart"""
+        #create the shopcart
+        shopcart = ShopcartFactory()
+        shopcart.create()
+        product = ProductFactory()
+        product.shopcart_id = shopcart.customer_id
+        shopcart.product_list.append(product)
+        shopcart.update()
+        new_shopcart = ShopcartFactory()
+        new_shopcart.deserialize(shopcart.serialize())
+        logging.debug(shopcart.serialize())
+        self.assertEqual(len(new_shopcart.product_list), 1)
