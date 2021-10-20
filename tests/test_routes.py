@@ -203,6 +203,18 @@ class TestYourResourceServer(TestCase):
         logging.debug(resp.get_json())
         self.assertEqual(resp.status_code, status.HTTP_202_ACCEPTED)
         self.assertEqual(len(resp.get_json()["product_list"]), 2)
+        #test delete one more product to the shopcart
+        
+        test_product.quantity = -test_product.quantity
+        resp = self.app.put(
+            "/shopcarts/{}".format(test_cart.customer_id),
+            json=test_product.serialize(),
+            content_type=CONTENT_TYPE_JSON
+        )
+        logging.debug(resp.get_json())
+        self.assertEqual(resp.status_code, status.HTTP_202_ACCEPTED)
+        self.assertEqual(len(resp.get_json()["product_list"]), 1)
+
 
     def test_list_products_in_shopcart(self):
         shopcart = self._create_shopcarts(1)[0]
@@ -252,3 +264,25 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(data["price"], product.price)
         self.assertEqual(data["in_stock"], product.in_stock)
         self.assertEqual(data["wishlist"], product.wishlist)
+
+    def test_create_bad_content_type(self):
+        """Create shopcart with Bad Content Type """
+        test_shopcart = ShopcartFactory()
+        logging.debug(test_shopcart)
+        resp = self.app.post(
+            "/shopcarts", json=test_shopcart.serialize(), content_type='text/html'
+        )
+        self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+
+    def test_create_bad_method(self):
+        """Create shopcart with Bad Method Type """
+        test_shopcart = ShopcartFactory()
+        logging.debug(test_shopcart)
+        resp = self.app.put(
+            "/shopcarts", json=test_shopcart.serialize(), content_type='text/html'
+        )
+        self.assertEqual(resp.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+

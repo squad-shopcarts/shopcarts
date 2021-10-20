@@ -56,6 +56,8 @@ def create_shopcart():
     Create a shopcart
     This endpoint will create a shopcart 
     """
+    if request.method != 'POST':
+        return make_response("Method Not allow", status.HTTP_405_METHOD_NOT_ALLOWED)
     app.logger.info("Request to create a shopcart")
     check_content_type("application/json")
     shopcart = Shopcart()
@@ -86,6 +88,9 @@ def get_shopcarts(customer_id):
         )
     return make_response(jsonify(shopcart.serialize()), status.HTTP_200_OK)
 
+######################################################################
+# UPDATE A SHOPCART
+######################################################################
 
 @app.route("/shopcarts/<int:customer_id>", methods=["PUT"])
 def update_cart(customer_id):
@@ -111,7 +116,6 @@ def update_cart(customer_id):
         for json_product in shopcart_info["product_list"]:
             if json_product["product_id"] == update_receive["product_id"]:
                 update_product = Product.find(int(json_product["id"]))
-
                 update_product.quantity += int(update_receive["quantity"])
                 update_product.price = float(update_receive["price"])
                 logging.debug("routesupdateexist:" +
@@ -119,6 +123,8 @@ def update_cart(customer_id):
                 update_product.in_stock = update_receive["in_stock"]
                 update_product.wishlist = update_receive["wishlist"]
                 update_product.update()
+                if update_product.quantity == 0:
+                    update_product.delete()
                 break
         else:
             new_product = Product()
