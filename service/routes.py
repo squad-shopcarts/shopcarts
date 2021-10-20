@@ -132,6 +132,38 @@ def update_cart(customer_id):
         status.HTTP_202_ACCEPTED
     )
 
+######################################################################
+# RETRIVE PRODUCT LIST
+######################################################################
+
+@app.route("/shopcarts/<int:customer_id>/products", methods=["GET"])
+def list_products_in_shopcart(customer_id):
+    """
+    Return the product list of a shopcart 
+    """
+    app.logger.info("Request for product list in a shopcart")
+    shopcart = Shopcart.find(customer_id)
+    results = [ product.serialize() for product in shopcart.product_list]
+    return make_response(jsonify(results), status.HTTP_200_OK)
+
+######################################################################
+# ADD A PRODUCT INTO A SHOPCART
+######################################################################
+
+@app.route("/shopcarts/<int:customer_id>/products", methods=["POST"])
+def create_products(customer_id):
+    """
+    Add a product into a shopcart
+    """
+    app.logger.info("Request to add a product into a shopcart")
+    check_content_type("application/json")
+    shopcart = Shopcart.find(customer_id)
+    product = Product()
+    product.deserialize(request.get_json())
+    shopcart.product_list.append(product)
+    shopcart.update()
+    message = product.serialize()
+    return make_response(jsonify(message), status.HTTP_201_CREATED)
 
 # @app.route("/shopcarts/<int:customer_id>", methods=["DELETE"])
 # def delete_cart(customer_id):
