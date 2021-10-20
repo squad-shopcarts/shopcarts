@@ -53,3 +53,32 @@ Vagrantfile         - sample Vagrant file that installs Python 3 and PostgreSQL
 ```
 
 This repository is part of the NYU class **CSCI-GA.2810-001: DevOps and Agile Methodologies** taught by John Rofrano, Adjunct Instructor, NYU Courant Institute, Graduate Division, Computer Science.
+
+
+**Note:** This repo has a `Vagrantfile` so the easiest way to play with it is to:
+
+```bash
+vagrant up
+vagrant ssh
+cd /vagrant
+nosetests
+flask run -h 0.0.0.0
+```
+
+These are the RESTful routes for `shopcart` and `product`
+```
+Endpoint                     Methods  Rule
+---------------------------  -------  -----------------------------------------------
+index                        GET      /
+
+list_shopcarts               GET      /shopcarts
+create_shopcart              POST     /shopcarts
+get_shopcarts                GET      /shopcarts/<customer_id>
+update_cart                  PUT      /shopcarts/<customer_id>
+delete_carts                 DELETE   /shopcarts/<customer_id>
+
+list_products_in_shopcart    GET      /shopcarts/<int:customer_id>/products
+create_products              POST     /shopcarts/<customer_id>/products
+```
+
+The test cases have 95% test coverage and can be run with `nosetests`
