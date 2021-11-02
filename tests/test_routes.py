@@ -246,6 +246,58 @@ class TestYourResourceServer(TestCase):
         data = resp.get_json()
         self.assertEqual(len(data), 2)
 
+    def test_get_a_product_in_shopcart(self):
+        """Get a product in a shopcart"""
+        shopcart = self._create_shopcarts(1)[0]
+        products = []
+        for _ in range(2):
+            product = ProductFactory()
+            products.append(product)
+        
+        resp = self.app.post(
+            "/shopcarts/{}/products".format(shopcart.customer_id),
+            json = products[0].serialize(),
+            content_type = "application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        product = products[0]
+        product.id = resp.get_json()["id"]
+
+        resp = self.app.post(
+            "/shopcarts/{}/products".format(shopcart.customer_id),
+            json = products[1].serialize(),
+            content_type = "application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        resp = self.app.get(
+            "/shopcarts/{}/products/{}".format(shopcart.customer_id, products[0].id),
+            content_type = "applicationn/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        data = resp.get_json()
+        self.assertEqual(data["product_id"], product.product_id)
+        self.assertEqual(data["product_name"], product.product_name)
+        self.assertEqual(data["quantity"], product.quantity)
+        self.assertEqual(data["price"], product.price)
+        self.assertEqual(data["in_stock"], product.in_stock)
+        self.assertEqual(data["wishlist"], product.wishlist)
+
+        # test getting a product not in product list, should return 404
+        resp = self.app.get(
+            "/shopcarts/{}/products/{}".format(shopcart.customer_id, -1),
+            content_type = "applicationn/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+        # test getting a shopcart not in database, should return 404
+        resp = self.app.get(
+            "/shopcarts/{}/products/{}".format(-1, products[0].id),
+            content_type = "applicationn/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_add_product(self):
         shopcart = self._create_shopcarts(1)[0]
         product = ProductFactory()
