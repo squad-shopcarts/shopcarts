@@ -174,45 +174,45 @@ class TestYourResourceServer(TestCase):
         test_product.shopcart_id = test_cart.customer_id
         logging.debug(test_product.serialize())
         resp = self.app.put(
-            "/shopcarts/{}".format(test_cart.customer_id), 
+            f"/shopcarts/{test_cart.customer_id}/products/{test_product.product_id}",
             json=test_product.serialize(), 
             content_type=CONTENT_TYPE_JSON
         )
         logging.debug(resp.get_json)
-        self.assertEqual(resp.status_code, status.HTTP_202_ACCEPTED)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
         
         #test update product price in the shopcart
         test_product.price = 10
         resp = self.app.put(
-            "/shopcarts/{}".format(test_cart.customer_id),
+            f"/shopcarts/{test_cart.customer_id}/products/{test_product.product_id}",
             json=test_product.serialize(),
             content_type=CONTENT_TYPE_JSON
         )
         logging.debug(resp.get_json())
-        self.assertEqual(resp.status_code, status.HTTP_202_ACCEPTED)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(resp.get_json()["product_list"][0]["price"], 10.0)
         
         #test add one more product to the shopcart
         test_product = ProductFactory()
         test_product.shopcart_id = test_cart.customer_id
         resp = self.app.put(
-            "/shopcarts/{}".format(test_cart.customer_id),
+            f"/shopcarts/{test_cart.customer_id}/products/{test_product.product_id}",
             json=test_product.serialize(),
             content_type=CONTENT_TYPE_JSON
         )
         logging.debug(resp.get_json())
-        self.assertEqual(resp.status_code, status.HTTP_202_ACCEPTED)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(len(resp.get_json()["product_list"]), 2)
         #test delete one more product to the shopcart
         
         test_product.quantity = -test_product.quantity
         resp = self.app.put(
-            "/shopcarts/{}".format(test_cart.customer_id),
+            f"/shopcarts/{test_cart.customer_id}/products/{test_product.product_id}",
             json=test_product.serialize(),
             content_type=CONTENT_TYPE_JSON
         )
         logging.debug(resp.get_json())
-        self.assertEqual(resp.status_code, status.HTTP_202_ACCEPTED)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(len(resp.get_json()["product_list"]), 1)
 
 

@@ -92,13 +92,65 @@ def get_shopcarts(customer_id):
 # UPDATE A SHOPCART
 ######################################################################
 
-@app.route("/shopcarts/<int:customer_id>", methods=["PUT"])
-def update_cart(customer_id):
+# @app.route("/shopcarts/<int:customer_id>", methods=["PUT"])
+# def update_cart(customer_id):
+#     """
+#     Update a shopcart
+#     This endpoint will update a shopcart based on the body it post
+#     """
+#     app.logger.info("Update for shopcart with id: %s", customer_id)
+#     update_receive = request.get_json()
+#     logging.debug("routesget:"+str(update_receive))
+#     shopcart = Shopcart.find(customer_id)
+#     if not shopcart:
+#         return (f"Account with id {customer_id} was not found",
+#             status.HTTP_404_NOT_FOUND)
+#     shopcart_info = shopcart.serialize()
+#     if len(shopcart_info["product_list"]) == 0:
+#         new_product = Product()
+#         new_product.deserialize(update_receive)
+#         new_product.create()
+#         logging.debug("routesnewproduct:"+str(shopcart.serialize()))
+#         shopcart.update()
+#     else :
+#         for json_product in shopcart_info["product_list"]:
+#             if json_product["product_id"] == update_receive["product_id"]:
+#                 update_product = Product.find(int(json_product["id"]))
+#                 update_product.quantity += int(update_receive["quantity"])
+#                 update_product.price = float(update_receive["price"])
+#                 logging.debug("routesupdateexist:" +
+#                               str(update_receive["price"]))
+#                 update_product.in_stock = update_receive["in_stock"]
+#                 update_product.wishlist = update_receive["wishlist"]
+#                 update_product.update()
+#                 if update_product.quantity == 0:
+#                     update_product.delete()
+#                 break
+#         else:
+#             new_product = Product()
+#             new_product.deserialize(update_receive)
+#             new_product.create()
+#             shopcart.product_list.append(new_product)
+#             shopcart.update()
+
+#     return make_response(
+#         shopcart.serialize(),
+#         status.HTTP_202_ACCEPTED
+#     )
+
+######################################################################
+# UPDATE A ITEM IN SHOPCART 
+######################################################################
+
+
+@app.route("/shopcarts/<int:customer_id>/products/<int:product_id>", methods=["PUT"])
+def update_cart(customer_id, product_id):
     """
-    Update a shopcart
+    Update a item in a shopcart
     This endpoint will update a shopcart based on the body it post
     """
-    app.logger.info("Update for shopcart with id: %s", customer_id)
+    app.logger.info(
+        f"Update item: {product_id} for shopcart with id: {customer_id}", )
     update_receive = request.get_json()
     logging.debug("routesget:"+str(update_receive))
     shopcart = Shopcart.find(customer_id)
@@ -106,15 +158,16 @@ def update_cart(customer_id):
         return (f"Account with id {customer_id} was not found",
             status.HTTP_404_NOT_FOUND)
     shopcart_info = shopcart.serialize()
+    shopcart_info = shopcart.serialize()
     if len(shopcart_info["product_list"]) == 0:
         new_product = Product()
         new_product.deserialize(update_receive)
         new_product.create()
         logging.debug("routesnewproduct:"+str(shopcart.serialize()))
         shopcart.update()
-    else :
+    else:
         for json_product in shopcart_info["product_list"]:
-            if json_product["product_id"] == update_receive["product_id"]:
+            if json_product["product_id"] == product_id:
                 update_product = Product.find(int(json_product["id"]))
                 update_product.quantity += int(update_receive["quantity"])
                 update_product.price = float(update_receive["price"])
@@ -135,7 +188,7 @@ def update_cart(customer_id):
 
     return make_response(
         shopcart.serialize(),
-        status.HTTP_202_ACCEPTED
+        status.HTTP_200_OK
     )
 
 ######################################################################
