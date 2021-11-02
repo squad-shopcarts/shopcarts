@@ -338,3 +338,46 @@ class TestYourResourceServer(TestCase):
 
 
 
+    def test_delete_a_product_in_shopcart(self):
+        """Delete a product in a shopcart"""
+        shopcart = self._create_shopcarts(1)[0]
+        products = []
+        for _ in range(2):
+            product = ProductFactory()
+            products.append(product)
+        
+        resp = self.app.post(
+            "/shopcarts/{}/products".format(shopcart.customer_id),
+            json = products[0].serialize(),
+            content_type = "application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        product = products[0]
+        product.id = resp.get_json()["id"]
+
+        resp = self.app.post(
+            "/shopcarts/{}/products".format(shopcart.customer_id),
+            json = products[1].serialize(),
+            content_type = "application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        resp = self.app.delete(
+            "/shopcarts/{}/products/{}".format(shopcart.customer_id, products[0].id),
+            content_type = "applicationn/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+
+        # test deleting a product not in product list, should return 404
+        resp = self.app.delete(
+            "/shopcarts/{}/products/{}".format(shopcart.customer_id, -1),
+            content_type = "applicationn/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+        # test deleting a shopcart not in database, should return 404
+        resp = self.app.delete(
+            "/shopcarts/{}/products/{}".format(-1, product.id),
+            content_type = "applicationn/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
