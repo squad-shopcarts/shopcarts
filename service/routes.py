@@ -199,6 +199,32 @@ def delete_carts(customer_id):
         app.logger.info('Shopcart with customer_id [%s] was deleted', customer_id)
     return make_response("", status.HTTP_204_NO_CONTENT)
 
+######################################################################
+#  GET A PRODUCT IN A SHOPCART
+######################################################################
+@app.route("/shopcarts/<int:customer_id>/products/<int:product_id>", methods=["GET"])
+def get_a_product_in_shopcart(customer_id, product_id):
+    """
+    Return a product of a shopcart 
+    """
+    app.logger.info("Request to get a product in a shopcart")
+    shopcart = Shopcart.find(customer_id)
+    if not shopcart:
+        return make_response(
+                "shopcart with id {customer_id} not found",
+                status.HTTP_404_NOT_FOUND
+        )
+    products = shopcart.product_list
+    for product in products:
+        if product.id == product_id:
+            return make_response(
+                jsonify(product.serialize()),
+                status.HTTP_200_OK
+            )
+    return make_response(
+        "can not find product with id {product_id} in shopcart {customer_id}", 
+        status.HTTP_404_NOT_FOUND
+    )
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
