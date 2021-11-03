@@ -1,3 +1,6 @@
+[![Build Status](https://app.travis-ci.com/squad-shopcarts/shopcarts.svg?branch=master)](https://app.travis-ci.com/squad-shopcarts/shopcarts)
+[![codecov](https://codecov.io/gh/squad-shopcarts/shopcarts/branch/master/graph/badge.svg?token=QTIVMHFLFM)](https://codecov.io/gh/squad-shopcarts/shopcarts)
+
 # nyu-devops-fall2021-squad-shopcarts
 This is the repository for the Homework on NYU DevOps and Agile Methodologies
 
