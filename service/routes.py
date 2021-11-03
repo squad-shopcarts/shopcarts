@@ -253,6 +253,33 @@ def delete_carts(customer_id):
     return make_response("", status.HTTP_204_NO_CONTENT)
 
 ######################################################################
+#  DELETE A PRODUCT IN A SHOPCART
+######################################################################
+@app.route("/shopcarts/<int:customer_id>/products/<int:product_id>", methods=["DELETE"])
+def delete_a_product_in_shopcart(customer_id, product_id):
+    """
+    Delete a product in a Shopcart
+    This endpoint will delete a product in a shopcart based the customer_id and product_id specified in the path
+    """
+    app.logger.info("Request to delete a product with product_id in a shopcart with customer_id: %s", customer_id)
+    shopcart = Shopcart.find(customer_id)
+    if shopcart:
+        products = shopcart.product_list
+        for product in products:
+            if product.id == product_id:
+                product.delete()
+                app.logger.info('Product with product_id [%s] in the shopcart with customer_id [%s] was deleted', product_id,customer_id)
+                return make_response("", status.HTTP_204_NO_CONTENT)
+    else:
+        abort(status.HTTP_404_NOT_FOUND,
+                  f"shopcart with id {customer_id} not found")
+    return make_response(
+        "can not find product with id {product_id} in shopcart {customer_id}", 
+        status.HTTP_404_NOT_FOUND
+    )
+    
+
+######################################################################
 #  GET A PRODUCT IN A SHOPCART
 ######################################################################
 @app.route("/shopcarts/<int:customer_id>/products/<int:product_id>", methods=["GET"])
