@@ -381,3 +381,55 @@ class TestYourResourceServer(TestCase):
             content_type = "applicationn/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_stateful_action_reverse_wishist_item(self):
+        """Stateful reverse wishlist status"""
+        test_shopcart = self._create_shopcarts(1)[0]
+        test_product = ProductFactory()
+        product_org_wl_status = test_product.wishlist
+        add_product_resp = self.app.post(
+            "/shopcarts/{}/products".format(test_shopcart.customer_id),
+            json=test_product.serialize(),
+            content_type="application/json"
+        )
+        logging.debug(add_product_resp)
+        reverse_wl_resp = self.app.put(
+            f"/shopcarts/{test_shopcart.customer_id}/products/{test_product.product_id}/reversewishlist",
+            content_type="application/json"
+        )
+        test_product.wishlist = not reverse_wl_resp.get_json()["wishlist"]
+        self.assertEqual(reverse_wl_resp.status_code, status.HTTP_200_OK)
+
+    def test_bad_sa_reverse_wishist_item_no_shopcart(self):
+        """Bad stateful reverse wishlist status (no shopcart)"""
+        test_product = ProductFactory()
+        product_org_wl_status = test_product.wishlist
+        reverse_wl_resp = self.app.put(
+            f"/shopcarts/{test_product.shopcart_id}/products/{test_product.product_id}/reversewishlist",
+            content_type="application/json"
+        )
+        self.assertEqual(reverse_wl_resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_bad_sa_reverse_wishist_item_no_product(self):
+        """Bad stateful reverse wishlist status (no item)"""
+        test_shopcart = self._create_shopcarts(1)[0]
+        test_product = ProductFactory()
+        reverse_wl_resp_emp_cart = self.app.put(
+            f"/shopcarts/{test_shopcart.customer_id}/products/{test_product.product_id}/reversewishlist",
+            content_type="application/json"
+        )
+        self.assertEqual(reverse_wl_resp_emp_cart.status_code,
+                         status.HTTP_404_NOT_FOUND)
+
+        add_product_resp = self.app.post(
+            "/shopcarts/{}/products".format(test_shopcart.customer_id),
+            json=test_product.serialize(),
+            content_type="application/json"
+        )
+
+        reverse_wl_resp_no_such_item = self.app.put(
+            f"/shopcarts/{test_shopcart.customer_id}/products/{test_product.product_id+1}/reversewishlist",
+            content_type="application/json"
+        )
+        self.assertEqual(
+            reverse_wl_resp_no_such_item.status_code, status.HTTP_404_NOT_FOUND)
