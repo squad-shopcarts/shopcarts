@@ -407,7 +407,7 @@ class TestYourResourceServer(TestCase):
         )
 
         data = resp.get_json()
-        print(resp, data)
+
         logging.debug(data)
 
         self.assertEqual(len(data), 3)
