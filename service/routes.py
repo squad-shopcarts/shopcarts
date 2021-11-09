@@ -307,9 +307,38 @@ def get_a_product_in_shopcart(customer_id, product_id):
     )
 
 ######################################################################
+#  GET WISHLISTED ITEMS IN A SHOPCART
+######################################################################
+@app.route("/shopcarts/wishlist", methods=["GET"])
+def get_wishlist_items():
+
+    """ Returns all wishlisted items in a customers cart"""
+
+    customer_id = request.args.get('customer-id', None)
+
+    if not customer_id:
+        return(
+            f"Missing customer id from query string",
+            status.HTTP_400_BAD_REQUEST
+        )
+
+    shopcart = Shopcart.find(customer_id)
+
+    if not shopcart:
+        return make_response(
+                f"shopcart with id {customer_id} not found",
+                status.HTTP_404_NOT_FOUND
+        )
+
+    products = [product.serialize() for product in shopcart.product_list]
+
+    wishlisted_items = [product for product in products if product['wishlist']]
+
+    return make_response(jsonify(wishlisted_items), status.HTTP_200_OK)
+
+######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
-
 
 def init_db():
     """ Initialies the SQLAlchemy app """
