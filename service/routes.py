@@ -158,7 +158,6 @@ def update_cart(customer_id, product_id):
         return (f"Account with id {customer_id} was not found",
             status.HTTP_404_NOT_FOUND)
     shopcart_info = shopcart.serialize()
-    shopcart_info = shopcart.serialize()
     if len(shopcart_info["product_list"]) == 0:
         new_product = Product()
         new_product.deserialize(update_receive)
@@ -190,6 +189,44 @@ def update_cart(customer_id, product_id):
         shopcart.serialize(),
         status.HTTP_200_OK
     )
+
+######################################################################
+# STATEFUL ACTION REVERSE WISHLIST STATUS
+######################################################################
+
+
+@app.route("/shopcarts/<int:customer_id>/products/<int:product_id>/reversewishlist", methods=["PUT"])
+def stateful_reverse_wl(customer_id, product_id):
+    """
+    Convert a item wishlist status
+    This endpoint will make the wishlist status of a item been reversed
+    """
+    app.logger.info(
+        f"Update item: {product_id} for shopcart with id: {customer_id}", )
+    shopcart = Shopcart.find(customer_id)
+    if not shopcart:
+        return (f"Account with id {customer_id} was not found",
+                status.HTTP_404_NOT_FOUND)
+    shopcart_info = shopcart.serialize()
+    if len(shopcart_info["product_list"]) == 0:
+        return (f"Product with product_id {product_id} was not found",
+                status.HTTP_404_NOT_FOUND)
+    else:
+        for json_product in shopcart_info["product_list"]:
+            if json_product["product_id"] == product_id:
+                update_product = Product.find(int(json_product["id"]))
+                update_product.wishlist = not update_product.wishlist
+                update_product.update()
+                break
+        else:
+            return (f"Product with product_id {product_id} was not found",
+                status.HTTP_404_NOT_FOUND)
+            
+    return make_response(
+        update_product.serialize(),
+        status.HTTP_200_OK
+    )
+
 
 ######################################################################
 # RETRIVE PRODUCT LIST
