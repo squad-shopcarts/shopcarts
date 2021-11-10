@@ -382,6 +382,69 @@ class TestYourResourceServer(TestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
+
+    def test_get_wishlisted_items(self):
+
+        """ Get wishlisted items in a shopcart"""
+
+        shopcart = self._create_shopcarts(1)[0]
+        product_names = []
+
+        for _ in range(3):
+            product = ProductFactory()
+            product.wishlist = True
+            product_names.append(product.product_name)
+            self.app.post(
+                f"/shopcarts/{shopcart.customer_id}/products",
+                json=product.serialize(), 
+                content_type=CONTENT_TYPE_JSON
+            )
+
+        resp = self.app.get(
+            f"/shopcarts/wishlist?customer-id={shopcart.customer_id}",
+            json = product.serialize(),
+            content_type = "application/json"
+        )
+
+        data = resp.get_json()
+
+        logging.debug(data)
+
+        self.assertEqual(len(data), 3)
+        for i in range(len(product_names)):
+            self.assertEqual(product_names[i], data[i]['product_name'])
+    
+    def test_get_wishlisted_items_without_customer_id(self):
+
+        """ Query wishlist without providing customer id """
+
+        product = ProductFactory()
+
+        resp = self.app.get(
+            f"/shopcarts/wishlist?bad_query",
+            json = product.serialize(),
+            content_type = "application/json"
+        )
+
+        data = resp.get_json()
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_get_wishlisted_item_for_non_existent_customer(self):
+
+        """ Query wishlist without providing customer id """
+        shopcart = self._create_shopcarts(1)[0]
+
+        product = ProductFactory()
+
+        resp = self.app.get(
+            f"/shopcarts/wishlist?customer-id=123456",
+            json = product.serialize(),
+            content_type = "application/json"
+        )
+
+        data = resp.get_json()
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+            
     def test_stateful_action_reverse_wishist_item(self):
         """Stateful reverse wishlist status"""
         test_shopcart = self._create_shopcarts(1)[0]
