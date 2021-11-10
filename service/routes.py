@@ -346,10 +346,10 @@ def get_a_product_in_shopcart(customer_id, product_id):
 ######################################################################
 #  GET WISHLISTED ITEMS IN A SHOPCART
 ######################################################################
-@app.route("/shopcarts/wishlist", methods=["GET"])
+@app.route("/shopcarts/wishlists", methods=["GET"])
 def get_wishlist_items():
 
-    """ Returns all wishlisted items in a customers cart"""
+    """ Returns all wishlisted items in a customer's cart"""
 
     customer_id = request.args.get('customer-id', None)
 
