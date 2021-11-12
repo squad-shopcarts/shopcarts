@@ -98,9 +98,9 @@ class TestYourResourceServer(TestCase):
 #  P L A C E   T E S T   C A S E S   H E R E
 ######################################################################
 
-    def test_index(self):
+    def test_healthchecl(self):
         """ Test index call """
-        resp = self.app.get("/")
+        resp = self.app.get("/healthcheck")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
     def test_list_shopcarts(self):
