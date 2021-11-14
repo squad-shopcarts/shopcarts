@@ -190,7 +190,7 @@ class TestYourResourceServer(TestCase):
         )
         logging.debug(resp.get_json())
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertEqual(resp.get_json()["product_list"][0]["price"], 10.0)
+        self.assertEqual(resp.get_json()["price"], 10.0)
         
         #test add one more product to the shopcart
         test_product = ProductFactory()
@@ -202,7 +202,7 @@ class TestYourResourceServer(TestCase):
         )
         logging.debug(resp.get_json())
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(resp.get_json()["product_list"]), 2)
+        # self.assertEqual(len(resp.get_json()["product_list"]), 2)
         #test delete one more product to the shopcart
         
         test_product.quantity = -test_product.quantity
@@ -212,8 +212,8 @@ class TestYourResourceServer(TestCase):
             content_type=CONTENT_TYPE_JSON
         )
         logging.debug(resp.get_json())
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(resp.get_json()["product_list"]), 1)
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        # self.assertEqual(len(resp.get_json()["product_list"]), 1)
 
 
     def test_list_products_in_shopcart(self):

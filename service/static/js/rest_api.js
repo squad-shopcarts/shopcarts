@@ -6,21 +6,33 @@ $(function () {
 
     // Updates the form with data from the response
     function update_form_data(res) {
-        $("#pet_id").val(res._id);
-        $("#pet_name").val(res.name);
-        $("#pet_category").val(res.category);
-        if (res.available == true) {
-            $("#pet_available").val("true");
+
+        $("#customer_id").val(res.id);
+        $("#product_id").val(res.product_id);
+        $("#product_name").val(res.product_name);
+        $("#product_quantity").val(res.quantity);
+        $("#product_price").val(res.price);
+
+        if (res.instock == true) {
+            $("#instock").val("true");
         } else {
-            $("#pet_available").val("false");
+            $("#instock").val("false");
+        }
+        if (res.wishlist == true) {
+            $("#wishlist").val("true");
+        } else {
+            $("#wishlist").val("false");
         }
     }
 
-    /// Clears all form fields
+    // Clears all form fields
     function clear_form_data() {
-        $("#pet_name").val("");
-        $("#pet_category").val("");
-        $("#pet_available").val("");
+        $("#customer_name").val("");
+        $("#product_name").val("");
+        $("#product_quantity").val("");
+        $("#product_price").val("");
+        $("#instock").val("");
+        $("#wishlist").val("");
     }
 
     // Updates the flash message area
@@ -47,7 +59,7 @@ $(function () {
 
         var ajax = $.ajax({
             type: "POST",
-            url: "/pets",
+            url: "/shopcarts",
             contentType: "application/json",
             data: JSON.stringify(data),
         });
@@ -64,25 +76,30 @@ $(function () {
 
 
     // ****************************************
-    // Update a Pet
+    // Update a Shopcart
     // ****************************************
 
     $("#update-btn").click(function () {
-
-        var pet_id = $("#pet_id").val();
-        var name = $("#pet_name").val();
-        var category = $("#pet_category").val();
-        var available = $("#pet_available").val() == "true";
-
+        var customer_id = $("#customer_id").val();
+        var product_id = $("#product_id").val();
+        var product_name = $("#product_name").val();
+        var quantity = $("#product_quantity").val();
+        var price = $("#product_price").val();
+        var instock = $("#instock").val() == "true";
+        var wishlist = $("#wishlist").val() == "false";
         var data = {
-            "name": name,
-            "category": category,
-            "available": available
+            "customer_id": customer_id,
+            "product_id": product_id,
+            "product_name": product_name,
+            "quantity": quantity,
+            "price": price,
+            "instock": instock,
+            "wishlist": wishlist  
         };
-
+        var url = "/shopcarts/" + customer_id + "/products/" + product_id;
         var ajax = $.ajax({
                 type: "PUT",
-                url: "/pets/" + pet_id,
+                url: url,
                 contentType: "application/json",
                 data: JSON.stringify(data)
             })
@@ -108,7 +125,7 @@ $(function () {
 
         var ajax = $.ajax({
             type: "GET",
-            url: "/pets/" + pet_id,
+            url: "/shopcarts/" + pet_id,
             contentType: "application/json",
             data: ''
         })
@@ -136,7 +153,7 @@ $(function () {
 
         var ajax = $.ajax({
             type: "DELETE",
-            url: "/pets/" + pet_id,
+            url: "/shopcarts/" + pet_id,
             contentType: "application/json",
             data: '',
         })
@@ -192,7 +209,7 @@ $(function () {
 
         var ajax = $.ajax({
             type: "GET",
-            url: "/pets?" + queryString,
+            url: "/shopcarts?" + queryString,
             contentType: "application/json",
             data: ''
         })
