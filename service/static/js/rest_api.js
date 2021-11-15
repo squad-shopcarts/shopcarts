@@ -64,12 +64,12 @@ $(function () {
             data: JSON.stringify(data),
         });
 
-        ajax.done(function(res){
+        ajax.done(function (res) {
             update_form_data(res)
             flash_message("Success")
         });
 
-        ajax.fail(function(res){
+        ajax.fail(function (res) {
             flash_message(res.responseJSON.message)
         });
     });
@@ -94,22 +94,22 @@ $(function () {
             "quantity": quantity,
             "price": price,
             "instock": instock,
-            "wishlist": wishlist  
+            "wishlist": wishlist
         };
         var url = "/shopcarts/" + customer_id + "/products/" + product_id;
         var ajax = $.ajax({
-                type: "PUT",
-                url: url,
-                contentType: "application/json",
-                data: JSON.stringify(data)
-            })
+            type: "PUT",
+            url: url,
+            contentType: "application/json",
+            data: JSON.stringify(data)
+        })
 
-        ajax.done(function(res){
+        ajax.done(function (res) {
             update_form_data(res)
             flash_message("Success")
         });
 
-        ajax.fail(function(res){
+        ajax.fail(function (res) {
             flash_message(res.responseJSON.message)
         });
 
@@ -130,13 +130,13 @@ $(function () {
             data: ''
         })
 
-        ajax.done(function(res){
+        ajax.done(function (res) {
             //alert(res.toSource())
             update_form_data(res)
             flash_message("Success")
         });
 
-        ajax.fail(function(res){
+        ajax.fail(function (res) {
             clear_form_data()
             flash_message(res.responseJSON.message)
         });
@@ -158,12 +158,12 @@ $(function () {
             data: '',
         })
 
-        ajax.done(function(res){
+        ajax.done(function (res) {
             clear_form_data()
             flash_message("Pet has been Deleted!")
         });
 
-        ajax.fail(function(res){
+        ajax.fail(function (res) {
             flash_message("Server error!")
         });
     });
@@ -214,7 +214,7 @@ $(function () {
             data: ''
         })
 
-        ajax.done(function(res){
+        ajax.done(function (res) {
             //alert(res.toSource())
             $("#search_results").empty();
             $("#search_results").append('<table class="table-striped" cellpadding="10">');
@@ -225,9 +225,9 @@ $(function () {
             header += '<th style="width:10%">Available</th></tr>'
             $("#search_results").append(header);
             var firstPet = "";
-            for(var i = 0; i < res.length; i++) {
+            for (var i = 0; i < res.length; i++) {
                 var pet = res[i];
-                var row = "<tr><td>"+pet._id+"</td><td>"+pet.name+"</td><td>"+pet.category+"</td><td>"+pet.available+"</td></tr>";
+                var row = "<tr><td>" + pet._id + "</td><td>" + pet.name + "</td><td>" + pet.category + "</td><td>" + pet.available + "</td></tr>";
                 $("#search_results").append(row);
                 if (i == 0) {
                     firstPet = pet;
@@ -244,7 +244,7 @@ $(function () {
             flash_message("Success")
         });
 
-        ajax.fail(function(res){
+        ajax.fail(function (res) {
             flash_message(res.responseJSON.message)
         });
 

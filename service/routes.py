@@ -1,6 +1,5 @@
 """
 Shopcarts Service
-
 """
 import logging
 import sys
@@ -22,15 +21,18 @@ print(sys.path)
 ######################################################################
 # GET HEALTH CHECK
 ######################################################################
+
+
 @app.route("/healthcheck")
 def healthcheck():
     """Let them know our heart is still beating"""
     return make_response(jsonify(status=200, message="Healthy"), status.HTTP_200_OK)
 
-
 ######################################################################
 # GET INDEX
 ######################################################################
+
+
 @app.route("/")
 def index():
     return app.send_static_file("index.html")
@@ -47,11 +49,12 @@ def list_shopcarts():
     Or just retrieve all shopcarts as a list
     """
     app.logger.info(
-        "Request for all shopcarts" )
+        "Request for all shopcarts")
     shopcarts = Shopcart.all()
 
-    results = [ shopcart.serialize() for shopcart in shopcarts]
+    results = [shopcart.serialize() for shopcart in shopcarts]
     return make_response(jsonify(results), status.HTTP_200_OK)
+
 
 @app.route("/shopcarts", methods=["POST"])
 def create_shopcart():
@@ -67,7 +70,8 @@ def create_shopcart():
     shopcart.deserialize(request.get_json())
     message = shopcart.serialize()
     shopcart.create()
-    location_url = url_for("get_shopcarts", customer_id=shopcart.customer_id, _external=True)
+    location_url = url_for(
+        "get_shopcarts", customer_id=shopcart.customer_id, _external=True)
     return make_response(
         jsonify(shopcart.serialize()), status.HTTP_201_CREATED, {"Location": location_url})
 
@@ -93,7 +97,7 @@ def get_shopcarts(customer_id):
 
 
 ######################################################################
-# UPDATE A ITEM IN SHOPCART 
+# UPDATE A ITEM IN SHOPCART
 ######################################################################
 
 
@@ -110,7 +114,7 @@ def update_cart(customer_id, product_id):
     shopcart = Shopcart.find(customer_id)
     if not shopcart:
         return (f"Account with id {customer_id} was not found",
-            status.HTTP_404_NOT_FOUND)
+                status.HTTP_404_NOT_FOUND)
     shopcart_info = shopcart.serialize()
     if len(shopcart_info["product_list"]) == 0:
         product = Product()
@@ -175,8 +179,8 @@ def stateful_reverse_wl(customer_id, product_id):
                 break
         else:
             return (f"Product with product_id {product_id} was not found",
-                status.HTTP_404_NOT_FOUND)
-            
+                    status.HTTP_404_NOT_FOUND)
+
     return make_response(
         update_product.serialize(),
         status.HTTP_200_OK
@@ -194,12 +198,13 @@ def list_products_in_shopcart(customer_id):
     """
     app.logger.info("Request for product list in a shopcart")
     shopcart = Shopcart.find(customer_id)
-    results = [ product.serialize() for product in shopcart.product_list]
+    results = [product.serialize() for product in shopcart.product_list]
     return make_response(jsonify(results), status.HTTP_200_OK)
 
 ######################################################################
 # ADD A PRODUCT INTO A SHOPCART
 ######################################################################
+
 
 @app.route("/shopcarts/<int:customer_id>/products", methods=["POST"])
 def create_products(customer_id):
@@ -222,7 +227,7 @@ def create_products(customer_id):
 #     Delete a Shopcart
 #     This endpoint will delete a Shopcart based the id specified in the path
 #     """
-    
+
 #     return (
 #         f"No Shopcart for customer: {customer_id} anymore",
 #         status.HTTP_200_OK,
@@ -231,45 +236,53 @@ def create_products(customer_id):
 ######################################################################
 #  DELETE A SHOPCART
 ######################################################################
+
+
 @app.route("/shopcarts/<int:customer_id>", methods=["DELETE"])
 def delete_carts(customer_id):
     """
     Delete a Shopcart
     This endpoint will delete a shopcart based the customer_id specified in the path
     """
-    app.logger.info("Request to delete a shopcart with customer_id: %s", customer_id)
+    app.logger.info(
+        "Request to delete a shopcart with customer_id: %s", customer_id)
     shopcart = Shopcart.find(customer_id)
     if shopcart:
         shopcart.delete()
-        app.logger.info('Shopcart with customer_id [%s] was deleted', customer_id)
+        app.logger.info(
+            'Shopcart with customer_id [%s] was deleted', customer_id)
     return make_response("", status.HTTP_204_NO_CONTENT)
 
 ######################################################################
 #  DELETE A PRODUCT IN A SHOPCART
 ######################################################################
+
+
 @app.route("/shopcarts/<int:customer_id>/products/<int:product_id>", methods=["DELETE"])
 def delete_a_product_in_shopcart(customer_id, product_id):
     """
     Delete a product in a Shopcart
     This endpoint will delete a product in a shopcart based the customer_id and product_id specified in the path
     """
-    app.logger.info("Request to delete a product with product_id in a shopcart with customer_id: %s", customer_id)
+    app.logger.info(
+        "Request to delete a product with product_id in a shopcart with customer_id: %s", customer_id)
     shopcart = Shopcart.find(customer_id)
     if shopcart:
         products = shopcart.product_list
         for product in products:
             if product.id == product_id:
                 product.delete()
-                app.logger.info('Product with product_id [%s] in the shopcart with customer_id [%s] was deleted', product_id,customer_id)
+                app.logger.info(
+                    'Product with product_id [%s] in the shopcart with customer_id [%s] was deleted', product_id, customer_id)
                 return make_response("", status.HTTP_204_NO_CONTENT)
     else:
         abort(status.HTTP_404_NOT_FOUND,
-                  f"shopcart with id {customer_id} not found")
+              f"shopcart with id {customer_id} not found")
     return make_response(
-        "can not find product with id {product_id} in shopcart {customer_id}", 
+        "can not find product with id {product_id} in shopcart {customer_id}",
         status.HTTP_404_NOT_FOUND
     )
-    
+
 
 ######################################################################
 #  GET A PRODUCT IN A SHOPCART
@@ -283,8 +296,8 @@ def get_a_product_in_shopcart(customer_id, product_id):
     shopcart = Shopcart.find(customer_id)
     if not shopcart:
         return make_response(
-                "shopcart with id {customer_id} not found",
-                status.HTTP_404_NOT_FOUND
+            "shopcart with id {customer_id} not found",
+            status.HTTP_404_NOT_FOUND
         )
     products = shopcart.product_list
     for product in products:
@@ -294,16 +307,17 @@ def get_a_product_in_shopcart(customer_id, product_id):
                 status.HTTP_200_OK
             )
     return make_response(
-        "can not find product with id {product_id} in shopcart {customer_id}", 
+        "can not find product with id {product_id} in shopcart {customer_id}",
         status.HTTP_404_NOT_FOUND
     )
 
 ######################################################################
 #  GET WISHLISTED ITEMS IN A SHOPCART
 ######################################################################
+
+
 @app.route("/shopcarts/wishlist", methods=["GET"])
 def get_wishlist_items():
-
     """ Returns all wishlisted items in a customers cart"""
 
     customer_id = request.args.get('customer-id', None)
@@ -318,8 +332,8 @@ def get_wishlist_items():
 
     if not shopcart:
         return make_response(
-                f"shopcart with id {customer_id} not found",
-                status.HTTP_404_NOT_FOUND
+            f"shopcart with id {customer_id} not found",
+            status.HTTP_404_NOT_FOUND
         )
 
     products = [product.serialize() for product in shopcart.product_list]
@@ -332,10 +346,12 @@ def get_wishlist_items():
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
 
+
 def init_db():
     """ Initialies the SQLAlchemy app """
     global app
     Shopcart.init_db(app)
+
 
 def check_content_type(media_type):
     """Checks that the media type is correct"""
@@ -347,4 +363,3 @@ def check_content_type(media_type):
         status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
         "Content-Type must be {}".format(media_type),
     )
-

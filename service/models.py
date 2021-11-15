@@ -14,6 +14,7 @@ db = SQLAlchemy()
 #     """Initialies the SQLAlchemy app"""
 #     Pet.init_db(app)
 
+
 class DataValidationError(Exception):
     """ Used for an data validation errors when deserializing """
     pass
@@ -59,7 +60,6 @@ class Product(db.Model):
         """
         logger.info("Saving %s", self.id)
         db.session.commit()
-
 
     def serialize(self):
         """ Serializes a Shopcart into a dictionary """

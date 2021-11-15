@@ -16,6 +16,8 @@ DATABASE_URI = os.getenv(
 ######################################################################
 #  SHOPCART   M O D E L   T E S T   C A S E S
 ######################################################################
+
+
 class TestShopcartModel(unittest.TestCase):
     """ Test Cases for Shopcart Model """
     @classmethod
@@ -63,7 +65,7 @@ class TestShopcartModel(unittest.TestCase):
         product.shopcart_id = shopcart.customer_id
         shopcart.product_list.append(product)
         shopcart.update()
-        self.assertEqual(len(shopcart.product_list),1)
+        self.assertEqual(len(shopcart.product_list), 1)
 
     def test_delete_a_shopcart(self):
         """Delete a customer shopcart"""
@@ -76,7 +78,7 @@ class TestShopcartModel(unittest.TestCase):
 
     def test_Serialize_a_shopcart(self):
         """Serialize a shopcart"""
-        #create the shopcart
+        # create the shopcart
         test_cart = ShopcartFactory()
         serialized_info = test_cart.serialize()
         self.assertEqual(serialized_info["customer_id"], test_cart.customer_id)
@@ -93,7 +95,7 @@ class TestShopcartModel(unittest.TestCase):
         new_shopcart.deserialize(shopcart.serialize())
         logging.debug(shopcart.serialize())
         self.assertEqual(len(new_shopcart.product_list), 1)
-    
+
     def test_deserialize_with_key_error(self):
         """ Deserialize an shopcart with a KeyError """
         shopcart = Shopcart()
@@ -119,7 +121,7 @@ class TestShopcartModel(unittest.TestCase):
         shopcarts = Shopcart.all()
         self.assertEqual(shopcarts, [])
         shopcart = Shopcart(
-            product_list = []
+            product_list=[]
         )
         self.assertTrue(shopcart != None)
         shopcart.create()
