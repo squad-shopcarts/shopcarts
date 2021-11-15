@@ -9,12 +9,11 @@ services:
       dockerfile: .devcontainer/Dockerfile
     hostname: devops
     ports:
-      - 5000:5000
+      - 8080:8080
     volumes:
-      - ~/.ssh/:/home/vagrant/.ssh/
-      - ~/.bluemix/:/home/vagrant/.bluemix/
-      - ~/.kube/:/home/vagrant/.kube/
-      - ..:/vagrant
+      - ~/.ssh/:/home/vscode/.ssh/
+      - ~/.gitconfig:/home/vscode/.gitconfig
+      - ..:/workspace
     command: sleep infinity
     environment:
       FLASK_APP: service:app
