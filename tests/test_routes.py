@@ -23,6 +23,8 @@ DATABASE_URI = os.getenv(
 ######################################################################
 #  T E S T   C A S E S
 ######################################################################
+
+
 class TestYourResourceServer(TestCase):
     """ REST API Server Tests """
 
@@ -45,7 +47,7 @@ class TestYourResourceServer(TestCase):
         db.drop_all()  # clean up the last tests
         db.create_all()  # create new tables
         self.app = app.test_client()
-    
+
     def tearDown(self):
         db.session.remove()
         db.drop_all()
@@ -77,14 +79,14 @@ class TestYourResourceServer(TestCase):
     #         test_product.wishlist = new_product["wishlist"]
     #         products.append(test_product)
     #     return products
-    
+
     def _create_shopcarts(self, count):
         """Create shopcarts in bulk"""
         shopcarts = []
         for _ in range(count):
             test_shopcart = ShopcartFactory()
             resp = self.app.post(
-                    "/shopcarts", json=test_shopcart.serialize(), content_type=CONTENT_TYPE_JSON
+                "/shopcarts", json=test_shopcart.serialize(), content_type=CONTENT_TYPE_JSON
             )
             self.assertEqual(
                 resp.status_code, status.HTTP_201_CREATED, "Could not create test Shopcart"
@@ -104,14 +106,12 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
     def test_list_shopcarts(self):
-        
         """List all shopcarts"""
         self._create_shopcarts(3)
         resp = self.app.get("/shopcarts")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
-        self.assertEquals( len(data), 3)
-        
+        self.assertEquals(len(data), 3)
 
     def test_get_shopcarts(self):
         """Get a single Shopcart"""
@@ -124,7 +124,6 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(data["customer_id"], test_shopcart.customer_id)
 
     def test_create_shopcart(self):
-
         """Create a new Shopcart"""
         test_shopcart = ShopcartFactory()
         logging.debug(test_shopcart)
@@ -136,11 +135,11 @@ class TestYourResourceServer(TestCase):
         # Check the location is correct
         location = resp.headers.get("Location", None)
         self.assertIsNotNone(location)
-        
+
         # Check the data is correct
         new_shopcart = resp.get_json()
-        self.assertEqual(new_shopcart["product_list"], test_shopcart.product_list, "Product list do not match")
-
+        self.assertEqual(
+            new_shopcart["product_list"], test_shopcart.product_list, "Product list do not match")
 
     def test_delete_shopcart(self):
         """Delete a shopcart"""
@@ -159,29 +158,29 @@ class TestYourResourceServer(TestCase):
     def test_update_shopcart(self):
         """Update a shopcart"""
 
-        #create the shopcart
+        # create the shopcart
         test_cart = ShopcartFactory()
         logging.debug(test_cart.serialize())
         resp = self.app.post(
-            "/shopcarts", 
-            json=test_cart.serialize(), 
+            "/shopcarts",
+            json=test_cart.serialize(),
             content_type=CONTENT_TYPE_JSON
         )
 
-        #test add a product price to the shopcart
+        # test add a product price to the shopcart
         test_cart.customer_id = resp.get_json()["customer_id"]
         test_product = ProductFactory()
         test_product.shopcart_id = test_cart.customer_id
         logging.debug(test_product.serialize())
         resp = self.app.put(
             f"/shopcarts/{test_cart.customer_id}/products/{test_product.product_id}",
-            json=test_product.serialize(), 
+            json=test_product.serialize(),
             content_type=CONTENT_TYPE_JSON
         )
         logging.debug(resp.get_json)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        
-        #test update product price in the shopcart
+
+        # test update product price in the shopcart
         test_product.price = 10
         resp = self.app.put(
             f"/shopcarts/{test_cart.customer_id}/products/{test_product.product_id}",
@@ -190,9 +189,9 @@ class TestYourResourceServer(TestCase):
         )
         logging.debug(resp.get_json())
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertEqual(resp.get_json()["product_list"][0]["price"], 10.0)
-        
-        #test add one more product to the shopcart
+        self.assertEqual(resp.get_json()["price"], 10.0)
+
+        # test add one more product to the shopcart
         test_product = ProductFactory()
         test_product.shopcart_id = test_cart.customer_id
         resp = self.app.put(
@@ -202,9 +201,9 @@ class TestYourResourceServer(TestCase):
         )
         logging.debug(resp.get_json())
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(resp.get_json()["product_list"]), 2)
-        #test delete one more product to the shopcart
-        
+        # self.assertEqual(len(resp.get_json()["product_list"]), 2)
+        # test delete one more product to the shopcart
+
         test_product.quantity = -test_product.quantity
         resp = self.app.put(
             f"/shopcarts/{test_cart.customer_id}/products/{test_product.product_id}",
@@ -212,9 +211,8 @@ class TestYourResourceServer(TestCase):
             content_type=CONTENT_TYPE_JSON
         )
         logging.debug(resp.get_json())
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(resp.get_json()["product_list"]), 1)
-
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        # self.assertEqual(len(resp.get_json()["product_list"]), 1)
 
     def test_list_products_in_shopcart(self):
         shopcart = self._create_shopcarts(1)[0]
@@ -222,24 +220,24 @@ class TestYourResourceServer(TestCase):
         for _ in range(2):
             product = ProductFactory()
             products.append(product)
-        
+
         resp = self.app.post(
             "/shopcarts/{}/products".format(shopcart.customer_id),
-            json = products[0].serialize(),
-            content_type = "application/json"
+            json=products[0].serialize(),
+            content_type="application/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
         resp = self.app.post(
             "/shopcarts/{}/products".format(shopcart.customer_id),
-            json = products[1].serialize(),
-            content_type = "application/json"
+            json=products[1].serialize(),
+            content_type="application/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
         resp = self.app.get(
             "/shopcarts/{}/products".format(shopcart.customer_id),
-            content_type = "applicationn/json"
+            content_type="applicationn/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
@@ -253,11 +251,11 @@ class TestYourResourceServer(TestCase):
         for _ in range(2):
             product = ProductFactory()
             products.append(product)
-        
+
         resp = self.app.post(
             "/shopcarts/{}/products".format(shopcart.customer_id),
-            json = products[0].serialize(),
-            content_type = "application/json"
+            json=products[0].serialize(),
+            content_type="application/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         product = products[0]
@@ -265,14 +263,15 @@ class TestYourResourceServer(TestCase):
 
         resp = self.app.post(
             "/shopcarts/{}/products".format(shopcart.customer_id),
-            json = products[1].serialize(),
-            content_type = "application/json"
+            json=products[1].serialize(),
+            content_type="application/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
         resp = self.app.get(
-            "/shopcarts/{}/products/{}".format(shopcart.customer_id, products[0].id),
-            content_type = "applicationn/json"
+            "/shopcarts/{}/products/{}".format(
+                shopcart.customer_id, products[0].id),
+            content_type="applicationn/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
@@ -287,14 +286,14 @@ class TestYourResourceServer(TestCase):
         # test getting a product not in product list, should return 404
         resp = self.app.get(
             "/shopcarts/{}/products/{}".format(shopcart.customer_id, -1),
-            content_type = "applicationn/json"
+            content_type="applicationn/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
         # test getting a shopcart not in database, should return 404
         resp = self.app.get(
             "/shopcarts/{}/products/{}".format(-1, products[0].id),
-            content_type = "applicationn/json"
+            content_type="applicationn/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -303,8 +302,8 @@ class TestYourResourceServer(TestCase):
         product = ProductFactory()
         resp = self.app.post(
             "/shopcarts/{}/products".format(shopcart.customer_id),
-            json = product.serialize(),
-            content_type = "application/json"
+            json=product.serialize(),
+            content_type="application/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         data = resp.get_json()
@@ -324,7 +323,8 @@ class TestYourResourceServer(TestCase):
         resp = self.app.post(
             "/shopcarts", json=test_shopcart.serialize(), content_type='text/html'
         )
-        self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+        self.assertEqual(resp.status_code,
+                         status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
     def test_create_bad_method(self):
         """Create shopcart with Bad Method Type """
@@ -336,8 +336,6 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(resp.status_code,
                          status.HTTP_405_METHOD_NOT_ALLOWED)
 
-
-
     def test_delete_a_product_in_shopcart(self):
         """Delete a product in a shopcart"""
         shopcart = self._create_shopcarts(1)[0]
@@ -345,11 +343,11 @@ class TestYourResourceServer(TestCase):
         for _ in range(2):
             product = ProductFactory()
             products.append(product)
-        
+
         resp = self.app.post(
             "/shopcarts/{}/products".format(shopcart.customer_id),
-            json = products[0].serialize(),
-            content_type = "application/json"
+            json=products[0].serialize(),
+            content_type="application/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         product = products[0]
@@ -357,34 +355,33 @@ class TestYourResourceServer(TestCase):
 
         resp = self.app.post(
             "/shopcarts/{}/products".format(shopcart.customer_id),
-            json = products[1].serialize(),
-            content_type = "application/json"
+            json=products[1].serialize(),
+            content_type="application/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
         resp = self.app.delete(
-            "/shopcarts/{}/products/{}".format(shopcart.customer_id, products[0].id),
-            content_type = "applicationn/json"
+            "/shopcarts/{}/products/{}".format(
+                shopcart.customer_id, products[0].id),
+            content_type="applicationn/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
 
         # test deleting a product not in product list, should return 404
         resp = self.app.delete(
             "/shopcarts/{}/products/{}".format(shopcart.customer_id, -1),
-            content_type = "applicationn/json"
+            content_type="applicationn/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
         # test deleting a shopcart not in database, should return 404
         resp = self.app.delete(
             "/shopcarts/{}/products/{}".format(-1, product.id),
-            content_type = "applicationn/json"
+            content_type="applicationn/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
-
     def test_get_wishlisted_items(self):
-
         """ Get wishlisted items in a shopcart"""
 
         shopcart = self._create_shopcarts(1)[0]
@@ -396,14 +393,14 @@ class TestYourResourceServer(TestCase):
             product_names.append(product.product_name)
             self.app.post(
                 f"/shopcarts/{shopcart.customer_id}/products",
-                json=product.serialize(), 
+                json=product.serialize(),
                 content_type=CONTENT_TYPE_JSON
             )
 
         resp = self.app.get(
             f"/shopcarts/wishlist?customer-id={shopcart.customer_id}",
-            json = product.serialize(),
-            content_type = "application/json"
+            json=product.serialize(),
+            content_type="application/json"
         )
 
         data = resp.get_json()
@@ -413,24 +410,22 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(len(data), 3)
         for i in range(len(product_names)):
             self.assertEqual(product_names[i], data[i]['product_name'])
-    
-    def test_get_wishlisted_items_without_customer_id(self):
 
+    def test_get_wishlisted_items_without_customer_id(self):
         """ Query wishlist without providing customer id """
 
         product = ProductFactory()
 
         resp = self.app.get(
             f"/shopcarts/wishlist?bad_query",
-            json = product.serialize(),
-            content_type = "application/json"
+            json=product.serialize(),
+            content_type="application/json"
         )
 
         data = resp.get_json()
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_get_wishlisted_item_for_non_existent_customer(self):
-
         """ Query wishlist without providing customer id """
         shopcart = self._create_shopcarts(1)[0]
 
@@ -438,13 +433,13 @@ class TestYourResourceServer(TestCase):
 
         resp = self.app.get(
             f"/shopcarts/wishlist?customer-id=123456",
-            json = product.serialize(),
-            content_type = "application/json"
+            json=product.serialize(),
+            content_type="application/json"
         )
 
         data = resp.get_json()
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
-            
+
     def test_stateful_action_reverse_wishist_item(self):
         """Stateful reverse wishlist status"""
         test_shopcart = self._create_shopcarts(1)[0]
@@ -471,7 +466,8 @@ class TestYourResourceServer(TestCase):
             f"/shopcarts/{test_product.shopcart_id}/products/{test_product.product_id}/reversewishlist",
             content_type="application/json"
         )
-        self.assertEqual(reverse_wl_resp.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(reverse_wl_resp.status_code,
+                         status.HTTP_404_NOT_FOUND)
 
     def test_bad_sa_reverse_wishist_item_no_product(self):
         """Bad stateful reverse wishlist status (no item)"""

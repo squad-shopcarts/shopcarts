@@ -18,7 +18,7 @@ ENV JAVA_HOME=/usr/lib/jvm/jdk8u252-b09-jre
 RUN apt-get install -y gcc libpq-dev
 
 # Create a user for development
-ARG USERNAME=vagrant
+ARG USERNAME=vscode
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 
@@ -30,8 +30,8 @@ RUN groupadd --gid $USER_GID $USERNAME \
     && chmod 0440 /etc/sudoers.d/$USERNAME
 
 # Set up the development environment
-WORKDIR /vagrant
-EXPOSE 5000
+WORKDIR /workspace
+EXPOSE 8080
 
 # Become a regular user
 USER $USERNAME
