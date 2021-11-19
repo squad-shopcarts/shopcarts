@@ -70,7 +70,7 @@ class TestYourResourceServer(TestCase):
     #         )
     #         new_product = resp.get_json()
     #         test_product.id = new_product["id"]
-    #         test_product.shopcart_id = new_product["shopcart_id"]
+    #         test_product.customer_id = new_product["customer_id"]
     #         test_product.product_id = new_product["product_id"]
     #         test_product.product_name = new_product["product_name"]
     #         test_product.price = new_product["price"]
@@ -170,7 +170,7 @@ class TestYourResourceServer(TestCase):
         # test add a product price to the shopcart
         test_cart.customer_id = resp.get_json()["customer_id"]
         test_product = ProductFactory()
-        test_product.shopcart_id = test_cart.customer_id
+        test_product.customer_id = test_cart.customer_id
         logging.debug(test_product.serialize())
         resp = self.app.put(
             f"/shopcarts/{test_cart.customer_id}/products/{test_product.product_id}",
@@ -193,7 +193,7 @@ class TestYourResourceServer(TestCase):
 
         # test add one more product to the shopcart
         test_product = ProductFactory()
-        test_product.shopcart_id = test_cart.customer_id
+        test_product.customer_id = test_cart.customer_id
         resp = self.app.put(
             f"/shopcarts/{test_cart.customer_id}/products/{test_product.product_id}",
             json=test_product.serialize(),
@@ -463,7 +463,7 @@ class TestYourResourceServer(TestCase):
         test_product = ProductFactory()
         product_org_wl_status = test_product.wishlist
         reverse_wl_resp = self.app.put(
-            f"/shopcarts/{test_product.shopcart_id}/products/{test_product.product_id}/reversewishlist",
+            f"/shopcarts/{test_product.customer_id}/products/{test_product.product_id}/reversewishlist",
             content_type="application/json"
         )
         self.assertEqual(reverse_wl_resp.status_code,

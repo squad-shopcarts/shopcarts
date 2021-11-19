@@ -6,7 +6,8 @@ $(function () {
 
     // Updates the form with data from the response
     function update_form_data(res) {
-        $("#customer_id").val(res.customer_id);
+
+        $("#customer_id").val(res.id);
         $("#product_id").val(res.product_id);
         $("#product_name").val(res.product_name);
         $("#product_quantity").val(res.quantity);
@@ -24,14 +25,9 @@ $(function () {
         }
     }
 
-    function update_form_create(res) {
-        $("#customer_id").val(res.customer_id);
-    }
-
     // Clears all form fields
     function clear_form_data() {
-        $("#customer_id").val("");
-        $("#product_id").val("");
+        $("#customer_name").val("");
         $("#product_name").val("");
         $("#product_quantity").val("");
         $("#product_price").val("");
@@ -51,11 +47,15 @@ $(function () {
 
     $("#create-btn").click(function () {
 
-        var product_list = []
+        // var name = $("#pet_name").val();
+        // var category = $("#pet_category").val();
+        // var available = $("#pet_available").val() == "true";
 
-        var data = {
-            "product_list": product_list,
-        };
+        // var data = {
+        //     "name": name,
+        //     "category": category,
+        //     "available": available
+        // };
 
         var ajax = $.ajax({
             type: "POST",
@@ -65,9 +65,8 @@ $(function () {
         });
 
         ajax.done(function (res) {
-            update_form_create(res);
-            flash_message(res);
-            // flash_message("Success");
+            update_form_data(res)
+            flash_message("Success")
         });
 
         ajax.fail(function (res) {
@@ -81,21 +80,26 @@ $(function () {
     // ****************************************
 
     $("#update-btn").click(function () {
-
-        var pet_id = $("#pet_id").val();
-        var name = $("#pet_name").val();
-        var category = $("#pet_category").val();
-        var available = $("#pet_available").val() == "true";
-
+        var customer_id = $("#customer_id").val();
+        var product_id = $("#product_id").val();
+        var product_name = $("#product_name").val();
+        var quantity = $("#product_quantity").val();
+        var price = $("#product_price").val();
+        var instock = $("#instock").val() == "true";
+        var wishlist = $("#wishlist").val() == "false";
         var data = {
-            "name": name,
-            "category": category,
-            "available": available
+            "customer_id": customer_id,
+            "product_id": product_id,
+            "product_name": product_name,
+            "quantity": quantity,
+            "price": price,
+            "instock": instock,
+            "wishlist": wishlist
         };
-
+        var url = "/shopcarts/" + customer_id + "/products/" + product_id;
         var ajax = $.ajax({
             type: "PUT",
-            url: "/pets/" + pet_id,
+            url: url,
             contentType: "application/json",
             data: JSON.stringify(data)
         })
@@ -108,6 +112,7 @@ $(function () {
         ajax.fail(function (res) {
             flash_message(res.responseJSON.message)
         });
+
     });
 
     // ****************************************
