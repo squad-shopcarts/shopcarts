@@ -114,7 +114,7 @@ def update_cart(customer_id, product_id):
     shopcart = Shopcart.find(customer_id)
     if not shopcart:
         app.logger.info(
-            f"Update item: {product_id} for shopcart with id: {customer_id}", )
+            f"Error to update item: {product_id} for shopcart with id: {customer_id}", )
         return (f"Account with id {customer_id} was not found",
                 status.HTTP_404_NOT_FOUND)
     app.logger.info(

@@ -62,7 +62,7 @@ class TestShopcartModel(unittest.TestCase):
         shopcart.create()
         self.assertEqual(len(Shopcart.all()), 1)
         product = ProductFactory()
-        product.shopcart_id = shopcart.customer_id
+        product.customer_id = shopcart.customer_id
         shopcart.product_list.append(product)
         shopcart.update()
         self.assertEqual(len(shopcart.product_list), 1)
@@ -88,7 +88,7 @@ class TestShopcartModel(unittest.TestCase):
         shopcart = ShopcartFactory()
         shopcart.create()
         product = ProductFactory()
-        product.shopcart_id = shopcart.customer_id
+        product.customer_id = shopcart.customer_id
         shopcart.product_list.append(product)
         shopcart.update()
         new_shopcart = ShopcartFactory()

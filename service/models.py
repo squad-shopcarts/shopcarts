@@ -31,7 +31,7 @@ class Product(db.Model):
     app = None
     # Table Schema
     id = db.Column(db.Integer, primary_key=True)
-    shopcart_id = db.Column(db.Integer, db.ForeignKey(
+    customer_id = db.Column(db.Integer, db.ForeignKey(
         'shopcart.customer_id'), nullable=False)
     product_id = db.Column(db.Integer, nullable=False)
     product_name = db.Column(db.String(120), nullable=False)
@@ -64,7 +64,7 @@ class Product(db.Model):
     def serialize(self):
         """ Serializes a Shopcart into a dictionary """
         return {"id": self.id,
-                "shopcart_id": self.shopcart_id,
+                "customer_id": self.customer_id,
                 "product_id": self.product_id,
                 "product_name": self.product_name,
                 "quantity": self.quantity,
@@ -74,9 +74,9 @@ class Product(db.Model):
                 }
 
     def deserialize(self, data):
-        # logging.debug(data["shopcart_id"])
+        # logging.debug(data["customer_id"])
         try:
-            self.shopcart_id = int(data["shopcart_id"])
+            self.customer_id = int(data["customer_id"])
             self.product_id = int(data["product_id"])
             self.product_name = data["product_name"]
             self.quantity = int(data["quantity"])
