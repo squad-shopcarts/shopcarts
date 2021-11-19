@@ -27,8 +27,7 @@ $(function () {
 
     // Clears all form fields
     function clear_form_data() {
-        $("#customer_id").val("");
-        $("#product_id").val("");
+        $("#customer_name").val("");
         $("#product_name").val("");
         $("#product_quantity").val("");
         $("#product_price").val("");
@@ -51,10 +50,13 @@ $(function () {
         // var name = $("#pet_name").val();
         // var category = $("#pet_category").val();
         // var available = $("#pet_available").val() == "true";
-        var product_list = []
-        var data = {
-            "product_list": product_list,
-        };
+
+        // var data = {
+        //     "name": name,
+        //     "category": category,
+        //     "available": available
+        // };
+
         var ajax = $.ajax({
             type: "POST",
             url: "/shopcarts",
