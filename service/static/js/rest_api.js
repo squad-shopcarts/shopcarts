@@ -45,8 +45,8 @@ $(function () {
         $("#flash_message").append(message);
     }
 
-    // Clear search results for orders
-    const clearOrderResults = () => {
+    // Clear search results for shopcarts
+    const clearShopcartResults = () => {
         $("#search_results").empty(); 
         $("#search_results").append('<table class="table-striped" cellpadding="10">');
         let header = '<tr>'; 
@@ -61,7 +61,7 @@ $(function () {
     
     // List the products in a shopcart
     const listShopcarts = (res) => {
-        clearOrderResults(); 
+        clearShopcartResults(); 
         let itemsString = ""; 
         res.product_list.map((item) => {itemsString+=`${item.product_id}: ${item.product_name}: ${item.quantity}: ${item.price}: ${item.instock}: ${item.wishlist}:`})
         const row = "<tr><td>"+res.itemsString+"</td></tr>";
