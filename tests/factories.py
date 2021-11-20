@@ -16,7 +16,7 @@ class ProductFactory(factory.Factory):
     product_name = FuzzyChoice(choices=["apple", "banana", "peach"])
     quantity = factory.Sequence(lambda n: n)
     price = factory.Sequence(lambda n: n)
-    in_stock = FuzzyChoice(choices=[True, False])
+    instock = FuzzyChoice(choices=[True, False])
     wishlist = FuzzyChoice(choices=[True, False])
 
 

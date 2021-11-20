@@ -134,8 +134,8 @@ def update_cart(customer_id, product_id):
                 product.price = float(update_receive["price"])
                 logging.debug("routesupdateexist:" +
                               str(update_receive["price"]))
-                product.in_stock = update_receive["in_stock"]
-                product.wishlist = update_receive["wishlist"]
+                product.instock = (update_receive["instock"] == 'true')
+                product.wishlist = (update_receive["wishlist"] == 'true')
                 product.update()
                 if product.quantity == 0:
                     product.delete()

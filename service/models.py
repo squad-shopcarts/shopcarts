@@ -37,7 +37,7 @@ class Product(db.Model):
     product_name = db.Column(db.String(120), nullable=False)
     quantity = db.Column(db.Integer, nullable=True)
     price = db.Column(db.Float, nullable=False)
-    in_stock = db.Column(db.Boolean(), nullable=False)
+    instock = db.Column(db.Boolean(), nullable=False)
     wishlist = db.Column(db.Boolean(), nullable=False)
 
     def delete(self):
@@ -69,8 +69,8 @@ class Product(db.Model):
                 "product_name": self.product_name,
                 "quantity": self.quantity,
                 "price": self.price,
-                "in_stock": self.in_stock,
-                "wishlist": self.wishlist
+                "instock": str(self.instock).lower(),
+                "wishlist": str(self.wishlist).lower()
                 }
 
     def deserialize(self, data):
@@ -81,8 +81,8 @@ class Product(db.Model):
             self.product_name = data["product_name"]
             self.quantity = int(data["quantity"])
             self.price = float(data["price"])
-            self.in_stock = data["in_stock"]
-            self.wishlist = data["wishlist"]
+            self.instock = (data["instock"] == 'true')
+            self.wishlist = (data["wishlist"] == 'true')
             logging.debug(self.wishlist)
         except KeyError as error:
             raise DataValidationError(
