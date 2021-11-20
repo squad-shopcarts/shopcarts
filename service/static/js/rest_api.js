@@ -66,7 +66,35 @@ $(function () {
         res.product_list.map((item) => {itemsString+=`${item.product_id}: ${item.product_name}: ${item.quantity}: ${item.price}: ${item.instock}: ${item.wishlist}:`})
         const row = "<tr><td>"+res.itemsString+"</td></tr>";
         $("#search_results").append(row); 
-        
+    }
+
+    const listWishlist = (res) => {
+        $("#search_results").empty();
+        $("#search_results").append('<table class="table-striped" cellpadding="10">');
+        var header = '<tr>'
+        header += '<th style="width:10%">Product ID</th>'
+        header += '<th style="width:15%">Product Name</th>'
+        header += '<th style="width:15%">Quantity</th>'
+        header += '<th style="width:15%">Price</th>'
+        header += '<th style="width:15%">In Stock</th>'
+        header += '<th style="width:10%">Wishlist</th></tr>'
+        $("#search_results").append(header);
+        var firstProduct = "";
+        for(var i = 0; i < res.length; i++) {
+            var product = res[i];
+            var row = "<tr><td>"+product.product_id+
+                "</td><td>"+product.product_name+
+                "</td><td>"+product.quantity+
+                "</td><td>"+product.price+
+                "</td><td>"+product.instock+
+                "</td><td>"+product.wishlist+"</td></tr>";
+
+            $("#search_results").append(row);
+                // if (i == 0) {
+                //     firstPet = pet;
+                // }
+        }
+        $("#search_results").append('</table>');
     }
 
     // ****************************************
@@ -207,33 +235,12 @@ $(function () {
 
     $("#search-btn").click(function () {
 
-        var name = $("#pet_name").val();
-        var category = $("#pet_category").val();
-        var available = $("#pet_available").val() == "true";
-
-        var queryString = ""
-
-        if (name) {
-            queryString += 'name=' + name
-        }
-        if (category) {
-            if (queryString.length > 0) {
-                queryString += '&category=' + category
-            } else {
-                queryString += 'category=' + category
-            }
-        }
-        if (available) {
-            if (queryString.length > 0) {
-                queryString += '&available=' + available
-            } else {
-                queryString += 'available=' + available
-            }
-        }
+        var customer_id = $("#customer_id").val();
+        log.console(`Searching for customer id ${customer_id}`)
 
         var ajax = $.ajax({
             type: "GET",
-            url: "/shopcarts?" + queryString,
+            url: `/shopcarts/${customer_id}`,
             contentType: "application/json",
             data: ''
         })
@@ -272,6 +279,35 @@ $(function () {
             flash_message(res.responseJSON.message)
         });
 
+    });
+
+    // ****************************************
+    // Retrieve a Wishlisted Products in a Shpocart
+    // ****************************************
+
+    $("#retrieve-wishlist-btn").click(function () {
+
+        var customer_id = $("#customer_id").val();
+        
+        var ajax = $.ajax({
+            type: "GET",
+            url: `/shopcarts/wishlist?customer-id=${customer_id}`,
+            contentType: "application/json",
+            data: ''
+        });
+
+        ajax.done(function (res) {
+            console.log(res);
+            //alert(res.toSource())
+            listWishlist(res)
+            update_form_data(res)
+            flash_message("Successfully Retrieved Wishlisted Items")
+        });
+
+        ajax.fail(function (res) {
+            clear_form_data()
+            flash_message(res.responseJSON.message)
+        });
     });
 
 })
