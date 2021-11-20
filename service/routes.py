@@ -111,6 +111,8 @@ def update_cart(customer_id, product_id):
         f"Start to update item: {product_id} for shopcart with id: {customer_id}", )
     update_receive = request.get_json()
     logging.debug("routesget:"+str(update_receive))
+    if int(update_receive['quantity']) <= 0:
+        return make_response("Quantity have to be a POSITIVE INTEGER", status.HTTP_400_BAD_REQUEST)
     shopcart = Shopcart.find(customer_id)
     if not shopcart:
         app.logger.info(
@@ -130,14 +132,14 @@ def update_cart(customer_id, product_id):
         for json_product in shopcart_info["product_list"]:
             if json_product["product_id"] == product_id:
                 product = Product.find(int(json_product["id"]))
-                product.quantity += int(update_receive["quantity"])
+                product.quantity = int(update_receive["quantity"])
                 product.price = float(update_receive["price"])
                 logging.debug("routesupdateexist:" +
                               str(update_receive["price"]))
-                product.in_stock = update_receive["in_stock"]
-                product.wishlist = update_receive["wishlist"]
+                product.instock = (update_receive["instock"] == 'true')
+                product.wishlist = (update_receive["wishlist"] == 'true')
                 product.update()
-                if product.quantity == 0:
+                if product.quantity <= 0:
                     product.delete()
                     return make_response("", status.HTTP_204_NO_CONTENT)
                 break
@@ -224,18 +226,6 @@ def create_products(customer_id):
     shopcart.update()
     message = product.serialize()
     return make_response(jsonify(message), status.HTTP_201_CREATED)
-
-# @app.route("/shopcarts/<int:customer_id>", methods=["DELETE"])
-# def delete_cart(customer_id):
-#     """
-#     Delete a Shopcart
-#     This endpoint will delete a Shopcart based the id specified in the path
-#     """
-
-#     return (
-#         f"No Shopcart for customer: {customer_id} anymore",
-#         status.HTTP_200_OK,
-#     )
 
 ######################################################################
 #  DELETE A SHOPCART

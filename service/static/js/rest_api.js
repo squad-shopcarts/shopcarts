@@ -12,12 +12,12 @@ $(function () {
         $("#product_quantity").val(res.quantity);
         $("#product_price").val(res.price);
 
-        if (res.instock == true) {
+        if (res.instock == 'true') {
             $("#instock").val("true");
         } else {
             $("#instock").val("false");
         }
-        if (res.wishlist == true) {
+        if (res.wishlist == 'true') {
             $("#wishlist").val("true");
         } else {
             $("#wishlist").val("false");
@@ -90,7 +90,6 @@ $(function () {
 
         ajax.done(function (res) {
             update_form_create(res);
-            flash_message(res);
             // flash_message("Success");
         });
 
@@ -105,21 +104,27 @@ $(function () {
     // ****************************************
 
     $("#update-btn").click(function () {
-
-        var pet_id = $("#pet_id").val();
-        var name = $("#pet_name").val();
-        var category = $("#pet_category").val();
-        var available = $("#pet_available").val() == "true";
-
+        var customer_id = $("#customer_id").val();
+        var product_id = $("#product_id").val();
+        var product_name = $("#product_name").val();
+        var quantity = $("#product_quantity").val();
+        var price = $("#product_price").val();
+        var instock = $("#instock").val();
+        var wishlist = $("#wishlist").val();
         var data = {
-            "name": name,
-            "category": category,
-            "available": available
+            "customer_id": customer_id,
+            "product_id": product_id,
+            "product_name": product_name,
+            "quantity": quantity,
+            "price": price,
+            "instock": instock,
+            "wishlist": wishlist
         };
 
+        var url = "/shopcarts/" + customer_id + "/products/" + product_id;
         var ajax = $.ajax({
             type: "PUT",
-            url: "/pets/" + pet_id,
+            url: url,
             contentType: "application/json",
             data: JSON.stringify(data)
         })
@@ -127,10 +132,6 @@ $(function () {
         ajax.done(function (res) {
             update_form_data(res)
             flash_message("Success")
-        });
-
-        ajax.fail(function (res) {
-            flash_message(res.responseJSON.message)
         });
     });
 

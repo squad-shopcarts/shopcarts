@@ -75,7 +75,7 @@ class TestYourResourceServer(TestCase):
     #         test_product.product_name = new_product["product_name"]
     #         test_product.price = new_product["price"]
     #         test_product.quantity = new_product["quantity"]
-    #         test_product.in_stock = new_product["in_stock"]
+    #         test_product.instock = new_product["instock"]
     #         test_product.wishlist = new_product["wishlist"]
     #         products.append(test_product)
     #     return products
@@ -204,14 +204,14 @@ class TestYourResourceServer(TestCase):
         # self.assertEqual(len(resp.get_json()["product_list"]), 2)
         # test delete one more product to the shopcart
 
-        test_product.quantity = -test_product.quantity
+        test_product.quantity = 0
         resp = self.app.put(
             f"/shopcarts/{test_cart.customer_id}/products/{test_product.product_id}",
             json=test_product.serialize(),
             content_type=CONTENT_TYPE_JSON
         )
         logging.debug(resp.get_json())
-        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
         # self.assertEqual(len(resp.get_json()["product_list"]), 1)
 
     def test_list_products_in_shopcart(self):
@@ -280,8 +280,8 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(data["product_name"], product.product_name)
         self.assertEqual(data["quantity"], product.quantity)
         self.assertEqual(data["price"], product.price)
-        self.assertEqual(data["in_stock"], product.in_stock)
-        self.assertEqual(data["wishlist"], product.wishlist)
+        self.assertEqual(data["instock"] == 'true', product.instock)
+        self.assertEqual(data["wishlist"] == 'true', product.wishlist)
 
         # test getting a product not in product list, should return 404
         resp = self.app.get(
@@ -298,6 +298,7 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_add_product(self):
+        "Test add product"
         shopcart = self._create_shopcarts(1)[0]
         product = ProductFactory()
         resp = self.app.post(
@@ -313,8 +314,8 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(data["product_name"], product.product_name)
         self.assertEqual(data["quantity"], product.quantity)
         self.assertEqual(data["price"], product.price)
-        self.assertEqual(data["in_stock"], product.in_stock)
-        self.assertEqual(data["wishlist"], product.wishlist)
+        self.assertEqual(data["instock"] == 'true', product.instock)
+        self.assertEqual(data["wishlist"] == 'true', product.wishlist)
 
     def test_create_bad_content_type(self):
         """Create shopcart with Bad Content Type """
