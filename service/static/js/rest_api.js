@@ -70,7 +70,7 @@ $(function () {
     }
 
     // ****************************************
-    // Create a Pet
+    // Create a Shopcart
     // ****************************************
 
     $("#create-btn").click(function () {
@@ -98,6 +98,30 @@ $(function () {
         });
     });
 
+    // ****************************************
+    // Delete a Shopcart
+    // ****************************************
+
+    $("#delete-shopcart-btn").click(function () {
+
+        var customer_id = $("#customer_id").val();
+
+        var ajax = $.ajax({
+            type: "DELETE",
+            url: "/shopcarts/" + customer_id,
+            contentType: "application/json",
+            data: '',
+        })
+
+        ajax.done(function(res){
+            clear_form_data()
+            flash_message("Shopcart " + customer_id + " has been Deleted!")
+        });
+
+        ajax.fail(function(res){
+            flash_message("Server error!")
+        });
+    });
 
     // ****************************************
     // Update a Shopcart
@@ -165,30 +189,57 @@ $(function () {
 
     });
 
-    
-
     // ****************************************
-    // Delete a Pet
+    // Retrieve a Product in a Shopcart
     // ****************************************
 
-    $("#delete-btn").click(function () {
+    $("#search-product-btn").click(function () {
 
-        var pet_id = $("#pet_id").val();
+        var customer_id = $("#customer_id").val();
+        var product_id = $("#product_id").val();
+        
+        var ajax = $.ajax({
+            type: "GET",
+            url: "/shopcarts/" + customer_id + "/products/" + product_id,
+            contentType: "application/json",
+            data: ''
+        });
+
+        ajax.done(function (res) {
+            update_form_data(res)
+            flash_message("Successfully get product " + product_id + " in shopcart " + customer_id)
+        });
+
+        ajax.fail(function (res) {
+            clear_form_data()
+            flash_message("can not retrieve product " + product_id + " in shopcart " + customer_id)
+        });
+
+    });
+
+    // ****************************************
+    // Delete a Product in a Shopcart
+    // ****************************************
+
+    $("#delete-product-btn").click(function () {
+
+        var customer_id = $("#customer_id").val();
+        var product_id = $("#product_id").val();
 
         var ajax = $.ajax({
             type: "DELETE",
-            url: "/shopcarts/" + pet_id,
+            url: "/shopcarts/" + customer_id + "/products/" + product_id,
             contentType: "application/json",
             data: '',
         })
 
         ajax.done(function (res) {
             clear_form_data()
-            flash_message("Pet has been Deleted!")
+            flash_message("Product " + product_id + " in shopcart " + customer_id + " has been Deleted!")
         });
 
         ajax.fail(function (res) {
-            flash_message("Server error!")
+            flash_message("Delete Failed!")
         });
     });
 
@@ -199,79 +250,6 @@ $(function () {
     $("#clear-btn").click(function () {
         $("#pet_id").val("");
         clear_form_data()
-    });
-
-    // ****************************************
-    // Search for a Pet
-    // ****************************************
-
-    $("#search-btn").click(function () {
-
-        var name = $("#pet_name").val();
-        var category = $("#pet_category").val();
-        var available = $("#pet_available").val() == "true";
-
-        var queryString = ""
-
-        if (name) {
-            queryString += 'name=' + name
-        }
-        if (category) {
-            if (queryString.length > 0) {
-                queryString += '&category=' + category
-            } else {
-                queryString += 'category=' + category
-            }
-        }
-        if (available) {
-            if (queryString.length > 0) {
-                queryString += '&available=' + available
-            } else {
-                queryString += 'available=' + available
-            }
-        }
-
-        var ajax = $.ajax({
-            type: "GET",
-            url: "/shopcarts?" + queryString,
-            contentType: "application/json",
-            data: ''
-        })
-
-        ajax.done(function (res) {
-            //alert(res.toSource())
-            $("#search_results").empty();
-            $("#search_results").append('<table class="table-striped" cellpadding="10">');
-            var header = '<tr>'
-            header += '<th style="width:10%">ID</th>'
-            header += '<th style="width:40%">Name</th>'
-            header += '<th style="width:40%">Category</th>'
-            header += '<th style="width:10%">Available</th></tr>'
-            $("#search_results").append(header);
-            var firstPet = "";
-            for (var i = 0; i < res.length; i++) {
-                var pet = res[i];
-                var row = "<tr><td>" + pet._id + "</td><td>" + pet.name + "</td><td>" + pet.category + "</td><td>" + pet.available + "</td></tr>";
-                $("#search_results").append(row);
-                if (i == 0) {
-                    firstPet = pet;
-                }
-            }
-
-            $("#search_results").append('</table>');
-
-            // copy the first result to the form
-            if (firstPet != "") {
-                update_form_data(firstPet)
-            }
-
-            flash_message("Success")
-        });
-
-        ajax.fail(function (res) {
-            flash_message(res.responseJSON.message)
-        });
-
     });
 
 })
