@@ -227,18 +227,6 @@ def create_products(customer_id):
     message = product.serialize()
     return make_response(jsonify(message), status.HTTP_201_CREATED)
 
-# @app.route("/shopcarts/<int:customer_id>", methods=["DELETE"])
-# def delete_cart(customer_id):
-#     """
-#     Delete a Shopcart
-#     This endpoint will delete a Shopcart based the id specified in the path
-#     """
-
-#     return (
-#         f"No Shopcart for customer: {customer_id} anymore",
-#         status.HTTP_200_OK,
-#     )
-
 ######################################################################
 #  DELETE A SHOPCART
 ######################################################################
