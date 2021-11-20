@@ -12,12 +12,12 @@ $(function () {
         $("#product_quantity").val(res.quantity);
         $("#product_price").val(res.price);
 
-        if (res.instock == true) {
+        if (res.instock == 'true') {
             $("#instock").val("true");
         } else {
             $("#instock").val("false");
         }
-        if (res.wishlist == true) {
+        if (res.wishlist == 'true') {
             $("#wishlist").val("true");
         } else {
             $("#wishlist").val("false");
@@ -85,8 +85,8 @@ $(function () {
         var product_name = $("#product_name").val();
         var quantity = $("#product_quantity").val();
         var price = $("#product_price").val();
-        var instock = $("#instock").val() == "true";
-        var wishlist = $("#wishlist").val() == "true";
+        var instock = $("#instock").val();
+        var wishlist = $("#wishlist").val();
         var data = {
             "customer_id": customer_id,
             "product_id": product_id,
