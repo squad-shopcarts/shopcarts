@@ -45,6 +45,30 @@ $(function () {
         $("#flash_message").append(message);
     }
 
+    // Clear search results for shopcarts
+    const clearShopcartResults = () => {
+        $("#search_results").empty(); 
+        $("#search_results").append('<table class="table-striped" cellpadding="10">');
+        let header = '<tr>'; 
+        header += '<th style="width:5%">Product ID</th>'; 
+        header += '<th style="width:5%">Product Name</th>'; 
+        header += '<th style="width:5%">Quantity</th>'; 
+        header += '<th style="width:5%">Price</th>'; 
+        header += '<th style="width:5%">Instock Status</th>'; 
+        header += '<th style="width:5%">Wishlist Status</th>'; 
+        $("#search_results").append(header);
+    }
+    
+    // List the products in a shopcart
+    const listShopcarts = (res) => {
+        clearShopcartResults(); 
+        let itemsString = ""; 
+        res.product_list.map((item) => {itemsString+=`${item.product_id}: ${item.product_name}: ${item.quantity}: ${item.price}: ${item.instock}: ${item.wishlist}:`})
+        const row = "<tr><td>"+res.itemsString+"</td></tr>";
+        $("#search_results").append(row); 
+        
+    }
+
     // ****************************************
     // Create a Pet
     // ****************************************
@@ -111,22 +135,24 @@ $(function () {
     });
 
     // ****************************************
-    // Retrieve a Pet
+    // Retrieve a Shopcart
     // ****************************************
 
     $("#retrieve-btn").click(function () {
 
-        var pet_id = $("#pet_id").val();
-
+        var customer_id = $("#customer_id").val();
+        
         var ajax = $.ajax({
             type: "GET",
-            url: "/shopcarts/" + pet_id,
+            url: "/shopcarts/" + customer_id,
             contentType: "application/json",
             data: ''
-        })
+        });
 
         ajax.done(function (res) {
+            console.log(res);
             //alert(res.toSource())
+            listShopcarts(res)
             update_form_data(res)
             flash_message("Success")
         });
@@ -137,6 +163,8 @@ $(function () {
         });
 
     });
+
+    
 
     // ****************************************
     // Delete a Pet
