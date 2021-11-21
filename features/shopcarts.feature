@@ -1,21 +1,21 @@
 Feature: The shopcarts service back-end
     As a shopcarts manager
     I need a RESTful catalog service
-    So that I can keep track of all products in shopcart 
+    So that I can keep track of all products in shopcart
 
-Background:
-    Given the following shopcarts
-        |   shopcart  |
-        |      1      |
-        |      2      |
-        |      3      |
-    
-    Given the following products
-        | customer_id | product_id | product_name | quantity | price | instock | wishlist  |
-        |      1      | 9          |   apple      |    3     | 2.0   | true    | false     |
-        |      1      | 8          |   orange     |    2     | 1.50  | true    | false     |
-        |      2      | 7          |   mouse      |   100    | 1500.0| false   | true      |
-        |      2      | 22         |   keyboard   |   10     | 400.0 | true    | false     |
+    Background:
+        Given the following shopcarts
+            | shopcart |
+            | 1        |
+            | 2        |
+            | 3        |
+
+        Given the following products
+            | customer_id | product_id | product_name | quantity | price  | instock | wishlist |
+            | 1           | 9          | apple        | 3        | 2.0    | true    | false    |
+            | 1           | 8          | orange       | 2        | 1.50   | true    | false    |
+            | 2           | 7          | mouse        | 100      | 1500.0 | false   | true     |
+            | 2           | 22         | keyboard     | 10       | 400.0  | true    | false    |
 
 Scenario: The server is running
     When I visit the "Home Page"
@@ -26,7 +26,7 @@ Scenario: Create a Shopcart
     When I visit the "Home Page"
     And I press the "Create" button
     Then I should see the message "Success"
-    And I should see "4" in the "customer_id" field 
+    And I should see "4" in the "customer_id" field
 
 #Scenario: Retrieve a Customer's Wishlisted Products
 #    When I visit the "Home Page"
