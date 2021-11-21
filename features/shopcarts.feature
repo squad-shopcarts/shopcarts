@@ -33,7 +33,7 @@ Scenario: Retrieve a Customer's Wishlisted Products
     And I set the "customer_id" to "2"
     And I press the "Retrieve-Wishlist" button
     Then I should see "mouse" in the wishlist results
-    Then I should see "keyboard" in the wishlist results
+    Then I should not see "apple" in the wishlist results
 
 Scenario: Change a Product's Wishlist Status
     When I visit the "Home Page"
