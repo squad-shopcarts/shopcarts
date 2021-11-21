@@ -27,25 +27,36 @@ import requests
 from behave import given
 from compare import expect
 
-@given('the following pets')
+@given('the following shopcarts')
 def step_impl(context):
-    """ Delete all Pets and load new ones """
+
+    """ Delete all Shopcarts and load new ones """
+
     headers = {'Content-Type': 'application/json'}
-    # list all of the pets and delete them one by one
-    context.resp = requests.get(context.base_url + '/pets', headers=headers)
-    expect(context.resp.status_code).to_equal(200)
-    for pet in context.resp.json():
-        context.resp = requests.delete(context.base_url + '/pets/' + str(pet["_id"]), headers=headers)
-        expect(context.resp.status_code).to_equal(204)
-    
-    # load the database with new pets
-    create_url = context.base_url + '/pets'
+
+    # list all of the shopcarts and delete them one by one
+    # context.resp = requests.get(context.base_url + '/shopcarts', headers=headers)
+    # expect(context.resp.status_code).to_equal(200)
+
+    # for shopcart in context.resp.json():
+    #     context.resp = requests.delete(context.base_url + '/shopcarts/' + str(shopcart["customer_id"]), headers=headers)
+    #     expect(context.resp.status_code).to_equal(204)
+
+    # load the database with new shopcarts
+    create_url = context.base_url + '/shopcarts'
+    context.customer_ids = {}
+    i = 0
+
     for row in context.table:
+        
         data = {
-            "name": row['name'],
-            "category": row['category'],
-            "available": row['available'] in ['True', 'true', '1']
+            "product_list": []
             }
+        
         payload = json.dumps(data)
         context.resp = requests.post(create_url, data=payload, headers=headers)
         expect(context.resp.status_code).to_equal(201)
+
+        # we have no control currently over the customer_id so we have to capture it when we create a shopcart
+        context.customer_ids[i] = context.resp.headers.get("Location", None).split('/')[-1]
+        i += 1

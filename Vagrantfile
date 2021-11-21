@@ -8,7 +8,9 @@
 Vagrant.configure(2) do |config|
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search
-  config.vm.box = "ubuntu/focal64"
+  # Chrome driver doesn't work with bento box
+  # config.vm.box = "ubuntu/focal64"
+  config.vm.box = "bento/ubuntu-21.04"
   config.vm.hostname = "ubuntu"
 
   # accessing "localhost:8080" will access port 80 on the guest machine.
@@ -39,17 +41,19 @@ Vagrant.configure(2) do |config|
   end
 
   ############################################################
-  # Provider for Docker on Intel or ARM (aarch64)
+  # Provider for Docker
   ############################################################
   config.vm.provider :docker do |docker, override|
     override.vm.box = nil
-    docker.image = "rofrano/vagrant-provider:ubuntu"
+    # Chromium driver does not work with ubuntu so we use debian
+    override.vm.hostname = "debian"
+    docker.image = "rofrano/vagrant-provider:debian"
     docker.remains_running = true
     docker.has_ssh = true
     docker.privileged = true
     docker.volumes = ["/sys/fs/cgroup:/sys/fs/cgroup:ro"]
     # Uncomment to force arm64 for testing images on Intel
-    # docker.create_args = ["--platform=linux/arm64"]     
+    # docker.create_args = ["--platform=linux/arm64"] 
   end
 
   # Copy your .gitconfig file so that your git credentials are correct
@@ -78,6 +82,9 @@ Vagrant.configure(2) do |config|
     apt-get update
     apt-get install -y git tree wget vim python3-dev python3-pip python3-venv
     apt-get -y autoremove
+
+    # Install Chromium Driver
+    apt-get install -y chromium-driver
     
     # Need PostgreSQL development library to compile on arm64
     apt-get install -y libpq-dev

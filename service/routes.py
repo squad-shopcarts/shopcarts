@@ -220,8 +220,19 @@ def create_products(customer_id):
     app.logger.info("Request to add a product into a shopcart")
     check_content_type("application/json")
     shopcart = Shopcart.find(customer_id)
+    app.logger.warning(f"Found Shopcart with id {shopcart.customer_id}")
     product = Product()
     product.deserialize(request.get_json())
+    app.logger.warning(
+        f"Created Product with info:"
+        f"id {product.id}\n"
+        f"customer_id {product.customer_id}\n"
+        f"product_id {product.product_id}\n"
+        f"price {product.price}\n"
+        f"quantity {product.quantity}\n"
+        f"instock {product.instock}\n"
+        f"wishlist {product.wishlist}\n"
+    )
     shopcart.product_list.append(product)
     shopcart.update()
     message = product.serialize()
@@ -332,7 +343,12 @@ def get_wishlist_items():
 
     products = [product.serialize() for product in shopcart.product_list]
 
-    wishlisted_items = [product for product in products if product['wishlist']]
+    wishlisted_items = []
+
+    for product in products:
+        if product['wishlist'] == 'true':
+            wishlisted_items.append(product)
+
 
     return make_response(jsonify(wishlisted_items), status.HTTP_200_OK)
 
