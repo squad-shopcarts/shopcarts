@@ -152,12 +152,12 @@ $(function () {
             console.log(res);
             //alert(res.toSource())
             listShopcarts(res)
-            update_form_create(res)
+            update_form_data(res)
             flash_message("Success")
         });
 
         ajax.fail(function (res) {
-            update_form_data()
+            clear_form_data()
             flash_message(res.responseJSON.message)
         });
 
