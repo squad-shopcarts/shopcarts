@@ -6,9 +6,9 @@ $(function () {
 
     // Updates the form with data from the response
     function update_form_data(res) {
-        $("#customer_id").val(res.customer_id);
+        $("#sc_customer_id").val(res.customer_id);
         $("#product_id").val(res.product_id);
-        $("#product_name").val(res.product_name);
+        $("#sc_product_name").val(res.product_name);
         $("#product_quantity").val(res.quantity);
         $("#product_price").val(res.price);
 
@@ -25,14 +25,14 @@ $(function () {
     }
 
     function update_form_create(res) {
-        $("#customer_id").val(res.customer_id);
+        $("#sc_customer_id").val(res.customer_id);
     }
 
     // Clears all form fields
     function clear_form_data() {
-        $("#customer_id").val("");
+        $("#sc_customer_id").val("");
         $("#product_id").val("");
-        $("#product_name").val("");
+        $("#sc_product_name").val("");
         $("#product_quantity").val("");
         $("#product_price").val("");
         $("#instock").val("");
@@ -69,16 +69,17 @@ $(function () {
     }
 
     const listWishlist = (res) => {
-        $("#search_results").empty();
-        $("#search_results").append('<table class="table-striped" cellpadding="10">');
+        $("#wishlist_results").empty();
+        $("#wishlist_results").append('<table class="table-striped" cellpadding="10">');
         var header = '<tr>'
-        header += '<th style="width:10%">Product ID</th>'
-        header += '<th style="width:15%">Product Name</th>'
+        header += '<th style="width:10%">Product_ID</th>'
+        header += '<th style="width:15%">Product_Name</th>'
         header += '<th style="width:15%">Quantity</th>'
         header += '<th style="width:15%">Price</th>'
-        header += '<th style="width:15%">In Stock</th>'
+        header += '<th style="width:15%">In_Stock</th>'
         header += '<th style="width:10%">Wishlist</th></tr>'
-        $("#search_results").append(header);
+        header +=
+        $("#wishlist_results").append(header);
         var firstProduct = "";
         for(var i = 0; i < res.length; i++) {
             var product = res[i];
@@ -89,12 +90,12 @@ $(function () {
                 "</td><td>"+product.instock+
                 "</td><td>"+product.wishlist+"</td></tr>";
 
-            $("#search_results").append(row);
+            $("#wishlist_results").append(row);
                 // if (i == 0) {
                 //     firstPet = pet;
                 // }
         }
-        $("#search_results").append('</table>');
+        $("#wishlist_results").append('</table>');
     }
 
     // ****************************************
@@ -132,7 +133,7 @@ $(function () {
 
     $("#delete-shopcart-btn").click(function () {
 
-        var customer_id = $("#customer_id").val();
+        var customer_id = $("#sc_customer_id").val();
 
         var ajax = $.ajax({
             type: "DELETE",
@@ -156,9 +157,9 @@ $(function () {
     // ****************************************
 
     $("#update-btn").click(function () {
-        var customer_id = $("#customer_id").val();
+        var customer_id = $("#sc_customer_id").val();
         var product_id = $("#product_id").val();
-        var product_name = $("#product_name").val();
+        var product_name = $("#sc_product_name").val();
         var quantity = $("#product_quantity").val();
         var price = $("#product_price").val();
         var instock = $("#instock").val();
@@ -193,7 +194,7 @@ $(function () {
 
     $("#retrieve-btn").click(function () {
 
-        var customer_id = $("#customer_id").val();
+        var customer_id = $("#sc_customer_id").val();
         
         var ajax = $.ajax({
             type: "GET",
@@ -223,7 +224,7 @@ $(function () {
 
     $("#search-product-btn").click(function () {
 
-        var customer_id = $("#customer_id").val();
+        var customer_id = $("#sc_customer_id").val();
         var product_id = $("#product_id").val();
         
         var ajax = $.ajax({
@@ -251,7 +252,7 @@ $(function () {
 
     $("#delete-product-btn").click(function () {
 
-        var customer_id = $("#customer_id").val();
+        var customer_id = $("#sc_customer_id").val();
         var product_id = $("#product_id").val();
 
         var ajax = $.ajax({
@@ -286,7 +287,7 @@ $(function () {
 
     $("#retrieve-wishlist-btn").click(function () {
 
-        var customer_id = $("#customer_id").val();
+        var customer_id = $("#sc_customer_id").val();
         
         var ajax = $.ajax({
             type: "GET",

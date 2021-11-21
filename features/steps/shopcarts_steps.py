@@ -35,18 +35,18 @@ def step_impl(context):
     headers = {'Content-Type': 'application/json'}
 
     # list all of the shopcarts and delete them one by one
-    context.resp = requests.get(context.base_url + '/shopcarts', headers=headers)
-    expect(context.resp.status_code).to_equal(200)
+    # context.resp = requests.get(context.base_url + '/shopcarts', headers=headers)
+    # expect(context.resp.status_code).to_equal(200)
 
-    for shopcart in context.resp.json():
-        context.resp = requests.delete(context.base_url + '/shopcarts/' + str(shopcart["customer_id"]), headers=headers)
-        expect(context.resp.status_code).to_equal(204)
+    # for shopcart in context.resp.json():
+    #     context.resp = requests.delete(context.base_url + '/shopcarts/' + str(shopcart["customer_id"]), headers=headers)
+    #     expect(context.resp.status_code).to_equal(204)
 
     # load the database with new shopcarts
     create_url = context.base_url + '/shopcarts'
     context.customer_ids = {}
     i = 0
-    
+
     for row in context.table:
         
         data = {

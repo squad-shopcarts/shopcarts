@@ -10,21 +10,24 @@ Background:
         |      2      |
         |      3      |
     
-    # Given the following products
-    #     | shopcart    | product_id | product_name | quantity | price | instock | wishlist  |
-    #     |      0      | 9          |    apple     |    1     | 2.0   | True    | False     |
-    #     |      1      | 8          |    orange    |    2     | 1.50  | True    | False     |
-    #     |      2      | 7          |   RTX-3090   |   100    | 1500.0| False   | True      |
-    #     |      2      | 22         |   RTX-2060   |   10     | 400.0 | True    | False     |
+    Given the following products
+        | shopcart    | product_id | product_name | quantity | price | instock | wishlist  |
+        |      0      | 9          |    apple     |    3     | 2.0   | true    | false     |
+        |      1      | 8          |    orange    |    2     | 1.50  | true    | false     |
+        |      2      | 7          |   mouse      |   100    | 1500.0| false   | true      |
+        |      2      | 22         |   keyboard   |   10     | 400.0 | true    | false     |
 
 Scenario: The server is running
     When I visit the "Home Page"
     Then I should see "Shopcarts RESTful Service" in the title
     And I should not see "404 Not Found"
 
-# Scenario: Retrieve a Customer's Wishlisted Products
-#     When I visit the "Home Page"
-
+Scenario: Retrieve a Customer's Wishlisted Products
+    When I visit the "Home Page"
+    And I set the "customer_id" to "3"
+    And I press the "Retrieve-Wishlist" button
+    Then I should see "mouse" in the wishlist results
+    And I should not see "keyboard" in the wishlist results
 # Scenario: Create a Pet
 #     When I visit the "Home Page"
 #     And I set the "Name" to "Happy"

@@ -386,12 +386,16 @@ class TestYourResourceServer(TestCase):
         """ Get wishlisted items in a shopcart"""
 
         shopcart = self._create_shopcarts(1)[0]
-        product_names = []
 
-        for _ in range(3):
+
+        for i in range(3):
             product = ProductFactory()
-            product.wishlist = True
-            product_names.append(product.product_name)
+            if i % 2 == 0:
+                product.wishlist = True
+
+            else:
+                product.wishlist = False
+
             self.app.post(
                 f"/shopcarts/{shopcart.customer_id}/products",
                 json=product.serialize(),
@@ -408,9 +412,9 @@ class TestYourResourceServer(TestCase):
 
         logging.debug(data)
 
-        self.assertEqual(len(data), 3)
-        for i in range(len(product_names)):
-            self.assertEqual(product_names[i], data[i]['product_name'])
+        self.assertEqual(len(data), 2)
+        for i in range(len(data)):
+            self.assertEqual('true', data[i]['wishlist'])
 
     def test_get_wishlisted_items_without_customer_id(self):
         """ Query wishlist without providing customer id """
