@@ -15,9 +15,9 @@
 ######################################################################
 
 """
-Pet Steps
+Shopcarts Steps
 
-Steps file for Pet.feature
+Steps file for Shopcarts.feature
 
 For information on Waiting until elements are present in the HTML see:
     https://selenium-python.readthedocs.io/waits.html
@@ -26,37 +26,46 @@ import json
 import requests
 from behave import given
 from compare import expect
+from service.models import Shopcart, db
+from flask_sqlalchemy import SQLAlchemy
+from service import app
+db = SQLAlchemy()
+# Shopcart.clear()
+Shopcart.clear()
+
 
 @given('the following shopcarts')
 def step_impl(context):
-
     """ Delete all Shopcarts and load new ones """
-
     headers = {'Content-Type': 'application/json'}
 
     # list all of the shopcarts and delete them one by one
-    # context.resp = requests.get(context.base_url + '/shopcarts', headers=headers)
+    # context.resp = requests.get(
+    #     context.base_url + '/shopcarts', headers=headers)
     # expect(context.resp.status_code).to_equal(200)
-
     # for shopcart in context.resp.json():
-    #     context.resp = requests.delete(context.base_url + '/shopcarts/' + str(shopcart["customer_id"]), headers=headers)
+    #     context.resp = requests.delete(
+    #         context.base_url + '/shopcarts/' + str(shopcart["customer_id"]), headers=headers)
     #     expect(context.resp.status_code).to_equal(204)
 
     # load the database with new shopcarts
-    create_url = context.base_url + '/shopcarts'
-    context.customer_ids = {}
-    i = 0
 
     for row in context.table:
-        
-        data = {
-            "product_list": []
+        get_url = context.base_url + '/shopcarts/' + str(row['shopcart'])
+        get_cart_resp = requests.get(get_url, data="", headers=headers)
+        if get_cart_resp.status_code == 200:
+            continue
+        else:
+            create_url = context.base_url + '/shopcarts'
+            data = {
+                "product_list": []
             }
-        
-        payload = json.dumps(data)
-        context.resp = requests.post(create_url, data=payload, headers=headers)
-        expect(context.resp.status_code).to_equal(201)
+            payload = json.dumps(data)
+            context.resp = requests.post(
+                create_url, data=payload, headers=headers)
+            expect(context.resp.status_code).to_equal(201)
 
         # we have no control currently over the customer_id so we have to capture it when we create a shopcart
-        context.customer_ids[i] = context.resp.headers.get("Location", None).split('/')[-1]
-        i += 1
+        # context.customer_ids[i] = context.resp.headers.get(
+        #     "Location", None).split('/')[-1]
+        # i += 1
