@@ -28,6 +28,17 @@ Scenario: Retrieve a Customer's Wishlisted Products
     And I press the "Retrieve-Wishlist" button
     Then I should see "mouse" in the wishlist results
     And I should not see "keyboard" in the wishlist results
+
+Scenario: Change a Product's Wishlist Status
+    When I visit the "Home Page"
+    And I set the "customer_id" to "1"
+    And I set the "product_id" to "9"
+    And I press the "Change-Wishlist" button
+    Then I should see "True" in the "Wishlist" dropdown
+    When I press the "Change-Wishlist" button
+    Then I should see "False" in the "Wishlist" dropdown
+
+
 # Scenario: Create a Pet
 #     When I visit the "Home Page"
 #     And I set the "Name" to "Happy"
