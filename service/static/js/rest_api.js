@@ -50,12 +50,12 @@ $(function () {
         $("#search_results").empty(); 
         $("#search_results").append('<table class="table-striped" cellpadding="10">');
         let header = '<tr>'; 
-        header += '<th style="width:5%">Product ID</th>'; 
-        header += '<th style="width:5%">Product Name</th>'; 
-        header += '<th style="width:5%">Quantity</th>'; 
-        header += '<th style="width:5%">Price</th>'; 
-        header += '<th style="width:5%">Instock Status</th>'; 
-        header += '<th style="width:5%">Wishlist Status</th>'; 
+        header += '<th style="width:15%">Product ID</th>'; 
+        header += '<th style="width:15%">Product Name</th>'; 
+        header += '<th style="width:15%">Quantity</th>'; 
+        header += '<th style="width:15%">Price</th>'; 
+        header += '<th style="width:15%">Instock Status</th>'; 
+        header += '<th style="width:15%">Wishlist Status</th>'; 
         $("#search_results").append(header);
     }
     
@@ -63,10 +63,9 @@ $(function () {
     const listShopcarts = (res) => {
         clearShopcartResults(); 
         let itemsString = ""; 
-        res.product_list.map((item) => {itemsString+=`${item.product_id}: ${item.product_name}: ${item.quantity}: ${item.price}: ${item.instock}: ${item.wishlist}:`})
-        const row = "<tr><td>"+res.itemsString+"</td></tr>";
+        res.product_list.map((product) => {itemsString+=`<tr><td>${product.product_id}: <th style="width:15%">${product.product_name}:</th> : <th style="width:15%">${product.quantity}:</th>: <th style="width:10%">${product.price}:</th> : <th style="width:15%">${product.instock}:</th> : <th style="width:15%">${product.wishlist}:</th> : ;</td><td>`})
+        const row = "<tr><td>"+itemsString+"</td></tr>";
         $("#search_results").append(row); 
-        
     }
 
     // ****************************************
