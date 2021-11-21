@@ -24,11 +24,6 @@ $(function () {
         }
     }
 
-    function update_form_retrieve(res) {
-        $("#customer_id").val(res.customer_id);
-        
-    }
-
     function update_form_create(res) {
         $("#customer_id").val(res.customer_id);
     }
@@ -157,7 +152,7 @@ $(function () {
             console.log(res);
             //alert(res.toSource())
             listShopcarts(res)
-            update_form_retrieve(res)
+            update_form_create(res)
             flash_message("Success")
         });
 
