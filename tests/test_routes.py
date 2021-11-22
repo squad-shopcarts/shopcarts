@@ -387,7 +387,6 @@ class TestYourResourceServer(TestCase):
 
         shopcart = self._create_shopcarts(1)[0]
 
-
         for i in range(3):
             product = ProductFactory()
             if i % 2 == 0:

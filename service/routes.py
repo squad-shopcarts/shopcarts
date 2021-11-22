@@ -351,7 +351,6 @@ def get_wishlist_items():
         if product['wishlist'] == 'true':
             wishlisted_items.append(product)
 
-
     return make_response(jsonify(wishlisted_items), status.HTTP_200_OK)
 
 ######################################################################

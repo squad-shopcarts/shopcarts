@@ -15,7 +15,7 @@ RUN mkdir -p /usr/lib/jvm \
 ENV JAVA_HOME=/usr/lib/jvm/jdk8u252-b09-jre
 
 # Add libraries required for PostgreSQL
-RUN apt-get install -y gcc libpq-dev
+RUN apt-get install -y gcc libpq-dev chromium-driver
 
 # Create a user for development
 ARG USERNAME=vscode

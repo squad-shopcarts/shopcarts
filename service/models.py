@@ -117,9 +117,8 @@ class Shopcart(db.Model):
 
     # Table Schema
     customer_id = db.Column(db.Integer, primary_key=True)
-    product_list = db.relationship('Product', backref='shopcart', lazy=True)
-    # total_price  = db.Column(db.Float, nullable=False)
-    # total_quantity  = db.Column(db.Integer, nullable=False)
+    product_list = db.relationship(
+        'Product', cascade="all,delete", backref='shopcart', lazy=True)
 
     def __repr__(self):
         return "<Shopcart for customer_id: %s>" % (self.customer_id)
@@ -202,8 +201,20 @@ class Shopcart(db.Model):
     @classmethod
     def all(cls):
         """ Returns all of the Shopcarts in the database """
+        results = []
         logger.info("Processing all Shopcarts")
+        # for doc in cls.query.all():
+        #     results.append(doc)
         return cls.query.all()
+        # return results
+
+    @classmethod
+    def clear(cls):
+        # db.drop_all()  # clean up the last tests
+        # db.create_all()  # create new tables
+        for table in reversed(db.metadata.sorted_tables):
+            db.engine.execute('TRUNCATE TABLE ' + table.name +
+                              ' RESTART IDENTITY CASCADE')
 
     # @classmethod
     # def find_or_404(cls, by_id):

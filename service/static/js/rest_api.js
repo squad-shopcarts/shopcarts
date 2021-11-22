@@ -7,7 +7,7 @@ $(function () {
     // Updates the form with data from the response
     function update_form_data(res) {
         $("#sc_customer_id").val(res.customer_id);
-        $("#product_id").val(res.product_id);
+        $("#sc_product_id").val(res.product_id);
         $("#sc_product_name").val(res.product_name);
         $("#product_quantity").val(res.quantity);
         $("#product_price").val(res.price);
@@ -18,9 +18,9 @@ $(function () {
             $("#instock").val("false");
         }
         if (res.wishlist == 'true') {
-            $("#wishlist").val("true");
+            $("#sc_wishlist").val("true");
         } else {
-            $("#wishlist").val("false");
+            $("#sc_wishlist").val("false");
         }
     }
 
@@ -31,12 +31,12 @@ $(function () {
     // Clears all form fields
     function clear_form_data() {
         $("#sc_customer_id").val("");
-        $("#product_id").val("");
+        $("#sc_product_id").val("");
         $("#sc_product_name").val("");
         $("#product_quantity").val("");
         $("#product_price").val("");
         $("#instock").val("");
-        $("#wishlist").val("");
+        $("#sc_wishlist").val("");
     }
 
     // Updates the flash message area
@@ -47,53 +47,64 @@ $(function () {
 
     // Clear search results for shopcarts
     const clearShopcartResults = () => {
-        $("#search_results").empty(); 
+        $("#search_results").empty();
         $("#search_results").append('<table class="table-striped" cellpadding="10">');
-        let header = '<tr>'; 
-        header += '<th style="width:15%">Product ID</th>'; 
-        header += '<th style="width:15%">Product Name</th>'; 
-        header += '<th style="width:15%">Quantity</th>'; 
-        header += '<th style="width:15%">Price</th>'; 
-        header += '<th style="width:15%">Instock Status</th>'; 
-        header += '<th style="width:15%">Wishlist Status</th>'; 
+        let header = '<tr>';
+        header += '<th style="width:15%">Product ID</th>';
+        header += '<th style="width:15%">Product Name</th>';
+        header += '<th style="width:15%">Quantity</th>';
+        header += '<th style="width:15%">Price</th>';
+        header += '<th style="width:15%">Instock Status</th>';
+        header += '<th style="width:15%">Wishlist Status</th>';
+        '</tr>';
         $("#search_results").append(header);
     }
-    
+
     // List the products in a shopcart
     const listShopcarts = (res) => {
-        clearShopcartResults(); 
-        let itemsString = ""; 
-        res.product_list.map((product) => {itemsString+=`<tr><td>${product.product_id}: <th style="width:15%">${product.product_name}:</th> : <th style="width:15%">${product.quantity}:</th>: <th style="width:10%">${product.price}:</th> : <th style="width:15%">${product.instock}:</th> : <th style="width:15%">${product.wishlist}:</th> : ;</td><td>`})
-        const row = "<tr><td>"+itemsString+"</td></tr>";
-        $("#search_results").append(row); 
+        clearShopcartResults();
+        let itemsString = "";
+        res.product_list.map((product) => {
+            itemsString += `
+        </tr>
+        <th style="width:15%">${product.product_id}</th>
+        <th style="width:15%"> ${product.product_name} </th>
+        <th style="width:15%">${product.quantity}</th> 
+        <th style="width:15%">${product.price}</th> 
+        <th style="width:15%">${product.instock}</th> 
+        <th style="width:15%">${product.wishlist}</th> ;
+        </tr>`
+        })
+        const row = "<tr><td>" + itemsString + "</td></tr>";
+        $("#search_results").append(row);
     }
 
     const listWishlist = (res) => {
         $("#wishlist_results").empty();
         $("#wishlist_results").append('<table class="table-striped" cellpadding="10">');
         var header = '<tr>'
-        header += '<th style="width:10%">Product_ID</th>'
+        header += '<th style="width:15%">Product_ID</th>'
         header += '<th style="width:15%">Product_Name</th>'
         header += '<th style="width:15%">Quantity</th>'
         header += '<th style="width:15%">Price</th>'
         header += '<th style="width:15%">In_Stock</th>'
-        header += '<th style="width:10%">Wishlist</th></tr>'
-        header +=
+        header += '<th style="width:15%">Wishlist</th>'
+        header += '</tr>'
         $("#wishlist_results").append(header);
         var firstProduct = "";
-        for(var i = 0; i < res.length; i++) {
+        for (var i = 0; i < res.length; i++) {
             var product = res[i];
-            var row = "<tr><td>"+product.product_id+
-                "</td><td>"+product.product_name+
-                "</td><td>"+product.quantity+
-                "</td><td>"+product.price+
-                "</td><td>"+product.instock+
-                "</td><td>"+product.wishlist+"</td></tr>";
+            var row = "<tr><td>" + product.product_id +
+                "</td><td>" + product.product_name +
+                "</td><td>" + product.quantity +
+                "</td><td>" + product.price +
+                "</td><td>" + product.instock +
+                "</td><td>" + product.wishlist + "</td></tr>";
 
             $("#wishlist_results").append(row);
-                // if (i == 0) {
-                //     firstPet = pet;
-                // }
+            // if (i == 0) {
+            //     firstPet = pet;
+            // }
         }
         $("#wishlist_results").append('</table>');
     }
@@ -119,7 +130,7 @@ $(function () {
 
         ajax.done(function (res) {
             update_form_create(res);
-            // flash_message("Success");
+            flash_message("Success");
         });
 
         ajax.fail(function (res) {
@@ -142,12 +153,12 @@ $(function () {
             data: '',
         })
 
-        ajax.done(function(res){
+        ajax.done(function (res) {
             clear_form_data()
             flash_message("Shopcart " + customer_id + " has been Deleted!")
         });
 
-        ajax.fail(function(res){
+        ajax.fail(function (res) {
             flash_message("Server error!")
         });
     });
@@ -158,12 +169,12 @@ $(function () {
 
     $("#update-btn").click(function () {
         var customer_id = $("#sc_customer_id").val();
-        var product_id = $("#product_id").val();
+        var product_id = $("#sc_product_id").val();
         var product_name = $("#sc_product_name").val();
         var quantity = $("#product_quantity").val();
         var price = $("#product_price").val();
         var instock = $("#instock").val();
-        var wishlist = $("#wishlist").val();
+        var wishlist = $("#sc_wishlist").val();
         var data = {
             "customer_id": customer_id,
             "product_id": product_id,
@@ -195,7 +206,7 @@ $(function () {
     $("#retrieve-btn").click(function () {
 
         var customer_id = $("#sc_customer_id").val();
-        
+
         var ajax = $.ajax({
             type: "GET",
             url: "/shopcarts/" + customer_id,
@@ -225,8 +236,8 @@ $(function () {
     $("#search-product-btn").click(function () {
 
         var customer_id = $("#sc_customer_id").val();
-        var product_id = $("#product_id").val();
-        
+        var product_id = $("#sc_product_id").val();
+
         var ajax = $.ajax({
             type: "GET",
             url: "/shopcarts/" + customer_id + "/products/" + product_id,
@@ -253,7 +264,7 @@ $(function () {
     $("#delete-product-btn").click(function () {
 
         var customer_id = $("#sc_customer_id").val();
-        var product_id = $("#product_id").val();
+        var product_id = $("#sc_product_id").val();
 
         var ajax = $.ajax({
             type: "DELETE",
@@ -288,7 +299,7 @@ $(function () {
     $("#retrieve-wishlist-btn").click(function () {
 
         var customer_id = $("#sc_customer_id").val();
-        
+
         var ajax = $.ajax({
             type: "GET",
             url: `/shopcarts/wishlist?customer-id=${customer_id}`,
@@ -302,6 +313,37 @@ $(function () {
             listWishlist(res)
             update_form_data(res)
             flash_message("Successfully Retrieved Wishlisted Items")
+        });
+
+        ajax.fail(function (res) {
+            clear_form_data()
+            flash_message(res.responseJSON.message)
+        });
+    });
+
+    // ****************************************
+    // Change the Wishlist Status of a Product
+    // ****************************************
+
+    $("#change-wishlist-btn").click(function () {
+
+        var customer_id = $("#sc_customer_id").val();
+        var product_id = $("#sc_product_id").val();
+
+        console.group('hi')
+
+        var ajax = $.ajax({
+            type: "PUT",
+            url: `/shopcarts/${customer_id}/products/${product_id}/reversewishlist`,
+            contentType: "application/json",
+            data: ''
+        });
+
+        ajax.done(function (res) {
+            console.log(res);
+            //alert(res.toSource())
+            update_form_data(res)
+            flash_message("Success")
         });
 
         ajax.fail(function (res) {
