@@ -22,11 +22,24 @@ Scenario: The server is running
     Then I should see "Shopcarts RESTful Service" in the title
     And I should not see "404 Not Found"
 
+
 Scenario: Create a Shopcart
     When I visit the "Home Page"
     And I press the "Create" button
     Then I should see the message "Success"
-    And I should see "4" in the "customer_id" field
+    When I copy the "customer_id" field
+    And I set the "product_id" to "123"
+    And I set the "product_name" to "egg"
+    And I set the "product_quantity" to "12"
+    And I set the "product_price" to "3.99"
+    And I select "False" in the "wishlist" dropdown
+    And I select "True" in the "instock" dropdown
+    And I press the "Update" button
+    And I press the "Clear" button
+    And I paste the "customer_id" field
+    And I press the "Retrieve" button
+    Then I should see "egg" in the search_results
+
 
 Scenario: Retrieve a Customer's Wishlisted Products
     When I visit the "Home Page"

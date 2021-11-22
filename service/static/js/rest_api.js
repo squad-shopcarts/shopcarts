@@ -171,9 +171,9 @@ $(function () {
         var customer_id = $("#sc_customer_id").val();
         var product_id = $("#sc_product_id").val();
         var product_name = $("#sc_product_name").val();
-        var quantity = $("#product_quantity").val();
-        var price = $("#product_price").val();
-        var instock = $("#instock").val();
+        var quantity = $("#sc_product_quantity").val();
+        var price = $("#sc_product_price").val();
+        var instock = $("#sc_instock").val();
         var wishlist = $("#sc_wishlist").val();
         var data = {
             "customer_id": customer_id,
