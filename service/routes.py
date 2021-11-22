@@ -125,8 +125,8 @@ def update_cart(customer_id, product_id):
     if len(shopcart_info["product_list"]) == 0:
         product = Product()
         product.deserialize(update_receive)
+        product.create()
         logging.debug("routesnewproduct:"+str(shopcart.serialize()))
-        shopcart.product_list.append(product)
         shopcart.update()
     else:
         for json_product in shopcart_info["product_list"]:
@@ -146,6 +146,7 @@ def update_cart(customer_id, product_id):
         else:
             product = Product()
             product.deserialize(update_receive)
+            product.create()
             shopcart.product_list.append(product)
             shopcart.update()
 
@@ -252,9 +253,6 @@ def delete_carts(customer_id):
         "Request to delete a shopcart with customer_id: %s", customer_id)
     shopcart = Shopcart.find(customer_id)
     if shopcart:
-        for product in shopcart.product_list:
-            product.delete()
-        shopcart.update()
         shopcart.delete()
         app.logger.info(
             'Shopcart with customer_id [%s] was deleted', customer_id)
@@ -272,7 +270,7 @@ def delete_a_product_in_shopcart(customer_id, product_id):
     This endpoint will delete a product in a shopcart based the customer_id and product_id specified in the path
     """
     app.logger.info(
-        "Request to delete a product with %s in a shopcart with customer_id: %s", product_id, customer_id)
+        "Request to delete a product with product_id in a shopcart with customer_id: %s", customer_id)
     shopcart = Shopcart.find(customer_id)
     if shopcart:
         products = shopcart.product_list
