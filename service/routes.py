@@ -64,12 +64,13 @@ def create_shopcart():
     """
     if request.method != 'POST':
         return make_response("Method Not allow", status.HTTP_405_METHOD_NOT_ALLOWED)
-    app.logger.info("Request to create a shopcart")
+    # app.logger.info("Request to create a shopcart")
     check_content_type("application/json")
     shopcart = Shopcart()
     shopcart.deserialize(request.get_json())
     message = shopcart.serialize()
     shopcart.create()
+    app.logger.info(f"Request to create a shopcart id: {shopcart.customer_id}")
     location_url = url_for(
         "get_shopcarts", customer_id=shopcart.customer_id, _external=True)
     return make_response(

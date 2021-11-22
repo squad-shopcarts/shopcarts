@@ -29,9 +29,9 @@ from compare import expect
 from service.models import Shopcart, db
 from flask_sqlalchemy import SQLAlchemy
 from service import app
-db = SQLAlchemy()
+# db = SQLAlchemy()
 # Shopcart.clear()
-Shopcart.clear()
+# Shopcart.clear()
 
 
 @given('the following shopcarts')
