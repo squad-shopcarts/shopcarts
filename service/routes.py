@@ -275,7 +275,7 @@ def delete_a_product_in_shopcart(customer_id, product_id):
     if shopcart:
         products = shopcart.product_list
         for product in products:
-            if product.id == product_id:
+            if product.product_id == product_id:
                 product.delete()
                 app.logger.info(
                     'Product with product_id [%s] in the shopcart with customer_id [%s] was deleted', product_id, customer_id)
@@ -306,7 +306,7 @@ def get_a_product_in_shopcart(customer_id, product_id):
         )
     products = shopcart.product_list
     for product in products:
-        if product.id == product_id:
+        if product.product_id == product_id:
             return make_response(
                 jsonify(product.serialize()),
                 status.HTTP_200_OK
