@@ -270,7 +270,7 @@ class TestYourResourceServer(TestCase):
 
         resp = self.app.get(
             "/shopcarts/{}/products/{}".format(
-                shopcart.customer_id, products[0].id),
+                shopcart.customer_id, products[0].product_id),
             content_type="applicationn/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
@@ -292,7 +292,7 @@ class TestYourResourceServer(TestCase):
 
         # test getting a shopcart not in database, should return 404
         resp = self.app.get(
-            "/shopcarts/{}/products/{}".format(-1, products[0].id),
+            "/shopcarts/{}/products/{}".format(-1, products[0].product_id),
             content_type="applicationn/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
@@ -363,7 +363,7 @@ class TestYourResourceServer(TestCase):
 
         resp = self.app.delete(
             "/shopcarts/{}/products/{}".format(
-                shopcart.customer_id, products[0].id),
+                shopcart.customer_id, products[0].product_id),
             content_type="applicationn/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
@@ -377,7 +377,7 @@ class TestYourResourceServer(TestCase):
 
         # test deleting a shopcart not in database, should return 404
         resp = self.app.delete(
-            "/shopcarts/{}/products/{}".format(-1, product.id),
+            "/shopcarts/{}/products/{}".format(-1, product.product_id),
             content_type="applicationn/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
