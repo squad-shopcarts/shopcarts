@@ -9,13 +9,13 @@ $(function () {
         $("#sc_customer_id").val(res.customer_id);
         $("#sc_product_id").val(res.product_id);
         $("#sc_product_name").val(res.product_name);
-        $("#product_quantity").val(res.quantity);
-        $("#product_price").val(res.price);
+        $("#sc_product_quantity").val(res.quantity);
+        $("#sc_product_price").val(res.price);
 
         if (res.instock == 'true') {
-            $("#instock").val("true");
+            $("#sc_instock").val("true");
         } else {
-            $("#instock").val("false");
+            $("#sc_instock").val("false");
         }
         if (res.wishlist == 'true') {
             $("#sc_wishlist").val("true");
@@ -33,9 +33,9 @@ $(function () {
         $("#sc_customer_id").val("");
         $("#sc_product_id").val("");
         $("#sc_product_name").val("");
-        $("#product_quantity").val("");
-        $("#product_price").val("");
-        $("#instock").val("");
+        $("#sc_product_quantity").val("");
+        $("#sc_product_price").val("");
+        $("#sc_instock").val("");
         $("#sc_wishlist").val("");
     }
 
