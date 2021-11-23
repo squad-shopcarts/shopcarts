@@ -133,6 +133,7 @@ def update_cart(customer_id, product_id):
         for json_product in shopcart_info["product_list"]:
             if json_product["product_id"] == product_id:
                 product = Product.find(int(json_product["id"]))
+                product.product_name = update_receive["product_name"]
                 product.quantity = int(update_receive["quantity"])
                 product.price = float(update_receive["price"])
                 logging.debug("routesupdateexist:" +
