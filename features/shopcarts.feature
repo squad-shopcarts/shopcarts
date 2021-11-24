@@ -72,38 +72,27 @@ Scenario: Change a Product's Wishlist Status
     When I press the "Change-Wishlist" button
     Then I should see "False" in the "Wishlist" dropdown
 
+Scenario: List all Products
+    When I visit the "Home Page"
+    And I set the "customer_id" to "1"
+    And I press the "Retrieve" button
+    Then I should see "apple" in the search_results
+    Then I should see "orange" in the search_results
 
-# Scenario: List all pets
-#     When I visit the "Home Page"
-#     And I press the "Search" button
-#     Then I should see "fido" in the results
-#     And I should see "kitty" in the results
-#     And I should not see "leo" in the results
+Scenario: Delete a Product in a Shopcart
+    When I visit the "Home Page"
+    And I set the "customer_id" to "1"
+    And I set the "product_id" to "9"
+    And I press the "Delete-Product" button
+    And I set the "customer_id" to "1"
+    And I press the "Retrieve" button
+    Then I should not see "apple" in the search_results
 
-# Scenario: Search all dogs
-#     When I visit the "Home Page"
-#     And I set the "Category" to "dog"
-#     And I press the "Search" button
-#     Then I should see "fido" in the results
-#     And I should not see "kitty" in the results
-#     And I should not see "leo" in the results
-
-# Scenario: Update a Product in shopcart
-#     When I visit the "Home Page"
-#     And I press the "create" button
-#     Then I should see ID in the "Customer ID" field
-#     When I set the "Prouduct Name" to "egg"
-#     And I set the "Quantity" to "1"
-#     And I set the "Price" to "1.29"
-#     And I set the "Instock" to "True"
-#     And I set the "Wishlist" to "False"
-#     And I press the "Update" button
-#     Then I should see the message "Success"
-#     When I set the "Prouduct Name" to "egg"
-#     And I should see "egg" in the results
-#     And I update the "Quantity" to "2"
-#     And I set the "Instock" to "True"
-#     And I set the "Wishlist" to "False"
-#     And I press the "Update" button
-#     Then I should see the message "Success"
-#     And I should see "egg" "quantity" is "2" in the results
+Scenario: Delete a Shopcart
+    When I visit the "Home Page"
+    And I set the "customer_id" to "1"
+    And I press the "Delete-Shopcart" button
+    And I set the "customer_id" to "1"
+    And I press the "Retrieve" button
+    Then I should not see "apple" in the search_results
+    Then I should not see "orange" in the search_results
