@@ -1,384 +1,376 @@
-######################################################################
-# Copyright 2016, 2020 John J. Rofrano. All Rights Reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# https://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-######################################################################
-
 """
-Shopcarts Service with Swagger
-
-Paths:
-------
-GET / - Displays a UI for Selenium testing
-GET /shopcarts - Returns a list all of the Shopcarts
-GET /shopcarts/{id} - Returns the Shopcart with a given id number
-POST /shopcarts - creates a new Shopcart record in the database
-PUT /shopcarts/{id} - updates a Shopcart record in the database
-DELETE /shopcarts/{id} - deletes a Shopcart record in the database
-DELETE /shopcarts/{id}/products/{id} - deletes a product record in the shopcart
+Shopcarts Service
 """
-
-import sys
-import secrets
 import logging
-from functools import wraps
-from flask import jsonify, request, url_for, make_response, render_template
-from flask_restx import Api, Resource, fields, reqparse, inputs
-from service.models import Product, Shopcart, DataValidationError, DatabaseConnectionError
-from . import app, status    # HTTP Status Codes
+import sys
+from flask import Flask, jsonify, request, url_for, make_response, abort
+from . import app
 
-# Document the type of autorization required
-authorizations = {
-    'apikey': {
-        'type': 'apiKey',
-        'in': 'header',
-        'name': 'X-Api-Key'
-    }
-}
+from service.models import Shopcart, Product, DataValidationError
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.exceptions import NotFound
+from . import status  # HTTP Status Codes
 
+print(sys.path)
+
+# For this example we"ll use SQLAlchemy, a popular ORM that supports a
+# variety of backends including SQLite, MySQL, and PostgreSQL
+
+# Import Flask application
 
 ######################################################################
-# Configure the Root route before OpenAPI
+# GET HEALTH CHECK
 ######################################################################
-@app.route('/')
+
+
+@app.route("/healthcheck")
+def healthcheck():
+    """Let them know our heart is still beating"""
+    return make_response(jsonify(status=200, message="Healthy"), status.HTTP_200_OK)
+
+######################################################################
+# GET INDEX
+######################################################################
+
+
+@app.route("/")
 def index():
-    """ Index page """
-    return app.send_static_file('index.html')
-
+    return app.send_static_file("index.html")
 
 ######################################################################
-# Configure Swagger before initializing it
-######################################################################
-api = Api(app,
-          version='1.0.0',
-          title='Shopcart Demo REST API Service',
-          description='This is a server for Shopcarts service.',
-          default='shopcarts',
-          default_label='shopcart operations',
-          doc='/apidocs',  # default also could use doc='/apidocs/'
-          authorizations=authorizations,
-          prefix='/api'
-          )
-
-
-# Define the model so that the docs reflect what can be sent
-product_model = api.model('Product', {
-    "customer_id": fields.Integer(required=True),
-    "product_id": fields.Integer(required=True),
-    "product_name": fields.String(required=True),
-    "quantity": fields.Integer(required=True, min=0),
-    "price": fields.Float(required=True, min=0),
-    "instock": fields.Boolean(required=True),
-    "wishlist": fields.Boolean(required=True),
-
-})
-
-shopcart_model = api.model('Shopcart', {
-    'customer_id': fields.Integer(required=True,
-                                  description='The customer id of the shopcart'),
-    'product_list': fields.List(fields.Nested(product_model),
-                                description='The List of Product in Shopcart'),
-})
-
-# shopcart_model = api.inherit(
-#     'ShopcartModel',
-#     create_model,
-#     {
-#         '_id': fields.String(readOnly=True,
-#                              description='The unique id assigned internally by service'),
-#     }
-# )
-
-
-# query string arguments
-# pet_args = reqparse.RequestParser()
-# pet_args.add_argument('name', type=str, required=False,
-#                       help='List Shopcarts by name')
-# pet_args.add_argument('category', type=str, required=False,
-#                       help='List Shopcarts by category')
-# pet_args.add_argument('available', type=inputs.boolean,
-#                       required=False, help='List Shopcarts by availability')
-
-######################################################################
-# Special Error Handlers
+# LIST ALL SHOPCARTS
 ######################################################################
 
 
-@api.errorhandler(DataValidationError)
-def request_validation_error(error):
-    """ Handles Value Errors from bad data """
-    message = str(error)
-    app.logger.error(message)
-    return {
-        'status_code': status.HTTP_400_BAD_REQUEST,
-        'error': 'Bad Request',
-        'message': message
-    }, status.HTTP_400_BAD_REQUEST
-
-
-@api.errorhandler(DatabaseConnectionError)
-def database_connection_error(error):
-    """ Handles Database Errors from connection attempts """
-    message = str(error)
-    app.logger.critical(message)
-    return {
-        'status_code': status.HTTP_503_SERVICE_UNAVAILABLE,
-        'error': 'Service Unavailable',
-        'message': message
-    }, status.HTTP_503_SERVICE_UNAVAILABLE
-
-
-######################################################################
-# Authorization Decorator
-######################################################################
-def token_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        token = None
-        if 'X-Api-Key' in request.headers:
-            token = request.headers['X-Api-Key']
-
-        if app.config.get('API_KEY') and app.config['API_KEY'] == token:
-            return f(*args, **kwargs)
-        else:
-            return {'message': 'Invalid or missing token'}, 401
-    return decorated
-
-
-######################################################################
-# Function to generate a random API key (good for testing)
-######################################################################
-def generate_apikey():
-    """ Helper function used when testing API keys """
-    return secrets.token_hex(16)
-
-
-######################################################################
-#  PATH: /pets/{id}
-######################################################################
-@api.route('/pets/<pet_id>')
-@api.param('pet_id', 'The Pet identifier')
-class PetResource(Resource):
+@app.route("/shopcarts", methods=["GET"])
+def list_shopcarts():
     """
-    PetResource class
-
-    Allows the manipulation of a single Pet
-    GET /pet{id} - Returns a Pet with the id
-    PUT /pet{id} - Update a Pet with the id
-    DELETE /pet{id} -  Deletes a Pet with the id
+    Retrieve shopcart if there is customer_id
+    Or just retrieve all shopcarts as a list
     """
+    app.logger.info(
+        "Request for all shopcarts")
+    shopcarts = Shopcart.all()
 
-    # ------------------------------------------------------------------
-    # RETRIEVE A PET
-    # ------------------------------------------------------------------
-    @api.doc('get_pets')
-    @api.response(404, 'Pet not found')
-    @api.marshal_with(pet_model)
-    def get(self, pet_id):
-        """
-        Retrieve a single Pet
+    results = [shopcart.serialize() for shopcart in shopcarts]
+    return make_response(jsonify(results), status.HTTP_200_OK)
 
-        This endpoint will return a Pet based on it's id
-        """
-        app.logger.info("Request to Retrieve a pet with id [%s]", pet_id)
-        pet = Pet.find(pet_id)
-        if not pet:
-            abort(status.HTTP_404_NOT_FOUND,
-                  "Pet with id '{}' was not found.".format(pet_id))
-        return pet.serialize(), status.HTTP_200_OK
 
-    # ------------------------------------------------------------------
-    # UPDATE AN EXISTING PET
-    # ------------------------------------------------------------------
-    @api.doc('update_pets', security='apikey')
-    @api.response(404, 'Pet not found')
-    @api.response(400, 'The posted Pet data was not valid')
-    @api.expect(pet_model)
-    @api.marshal_with(pet_model)
-    @token_required
-    def put(self, pet_id):
-        """
-        Update a Pet
+@app.route("/shopcarts", methods=["POST"])
+def create_shopcart():
+    """
+    Create a shopcart
+    This endpoint will create a shopcart 
+    """
+    if request.method != 'POST':
+        return make_response("Method Not allow", status.HTTP_405_METHOD_NOT_ALLOWED)
+    # app.logger.info("Request to create a shopcart")
+    check_content_type("application/json")
+    shopcart = Shopcart()
+    shopcart.deserialize(request.get_json())
+    message = shopcart.serialize()
+    shopcart.create()
+    app.logger.info(f"Request to create a shopcart id: {shopcart.customer_id}")
+    location_url = url_for(
+        "get_shopcarts", customer_id=shopcart.customer_id, _external=True)
+    return make_response(
+        jsonify(shopcart.serialize()), status.HTTP_201_CREATED, {"Location": location_url})
 
-        This endpoint will update a Pet based the body that is posted
-        """
-        app.logger.info('Request to Update a pet with id [%s]', pet_id)
-        pet = Pet.find(pet_id)
-        if not pet:
-            abort(status.HTTP_404_NOT_FOUND,
-                  "Pet with id '{}' was not found.".format(pet_id))
-        app.logger.debug('Payload = %s', api.payload)
-        data = api.payload
-        pet.deserialize(data)
-        pet.id = pet_id
-        pet.update()
-        return pet.serialize(), status.HTTP_200_OK
+######################################################################
+# RETRIEVE A SHOPCART
+######################################################################
 
-    # ------------------------------------------------------------------
-    # DELETE A PET
-    # ------------------------------------------------------------------
-    @api.doc('delete_pets', security='apikey')
-    @api.response(204, 'Pet deleted')
-    @token_required
-    def delete(self, pet_id):
-        """
-        Delete a Pet
 
-        This endpoint will delete a Pet based the id specified in the path
-        """
-        app.logger.info('Request to Delete a pet with id [%s]', pet_id)
-        pet = Pet.find(pet_id)
-        if pet:
-            pet.delete()
-            app.logger.info('Pet with id [%s] was deleted', pet_id)
-
-        return '', status.HTTP_204_NO_CONTENT
+@app.route("/shopcarts/<int:customer_id>", methods=["GET"])
+def get_shopcarts(customer_id):
+    """
+    Retrieve a single Shopcart
+    This endpoint will return a Shopcart based on it"s id
+    """
+    app.logger.info("Request for shopcart with id: %s", customer_id)
+    shopcart = Shopcart.find(customer_id)
+    if not shopcart:
+        return(
+            f"Shopcart with id {customer_id} was not found",
+            status.HTTP_404_NOT_FOUND
+        )
+    return make_response(jsonify(shopcart.serialize()), status.HTTP_200_OK)
 
 
 ######################################################################
-#  PATH: /pets
+# UPDATE A ITEM IN SHOPCART
 ######################################################################
-@api.route('/pets', strict_slashes=False)
-class PetCollection(Resource):
-    """ Handles all interactions with collections of Pets """
-    # ------------------------------------------------------------------
-    # LIST ALL PETS
-    # ------------------------------------------------------------------
-    @api.doc('list_pets')
-    @api.expect(pet_args, validate=True)
-    @api.marshal_list_with(pet_model)
-    def get(self):
-        """ Returns all of the Pets """
-        app.logger.info('Request to list Pets...')
-        pets = []
-        args = pet_args.parse_args()
-        if args['category']:
-            app.logger.info('Filtering by category: %s', args['category'])
-            pets = Pet.find_by_category(args['category'])
-        elif args['name']:
-            app.logger.info('Filtering by name: %s', args['name'])
-            pets = Pet.find_by_name(args['name'])
-        elif args['available'] is not None:
-            app.logger.info('Filtering by availability: %s', args['available'])
-            pets = Pet.find_by_availability(args['available'])
+
+
+@app.route("/shopcarts/<int:customer_id>/products/<int:product_id>", methods=["PUT"])
+def update_cart(customer_id, product_id):
+    """
+    Update a item in a shopcart
+    This endpoint will update a shopcart based on the body it post
+    """
+    app.logger.info(
+        f"Start to update item: {product_id} for shopcart with id: {customer_id}", )
+    update_receive = request.get_json()
+    logging.debug("routesget:"+str(update_receive))
+    if int(update_receive['quantity']) <= 0:
+        return make_response("Quantity have to be a POSITIVE INTEGER", status.HTTP_400_BAD_REQUEST)
+    shopcart = Shopcart.find(customer_id)
+    if not shopcart:
+        app.logger.info(
+            f"Error to update item: {product_id} for shopcart with id: {customer_id}", )
+        return (f"Account with id {customer_id} was not found",
+                status.HTTP_404_NOT_FOUND)
+    app.logger.info(
+        f"Update item: {product_id} for shopcart with id: {customer_id}", )
+    shopcart_info = shopcart.serialize()
+    if len(shopcart_info["product_list"]) == 0:
+        product = Product()
+        product.deserialize(update_receive)
+        product.create()
+        logging.debug("routesnewproduct:"+str(shopcart.serialize()))
+        shopcart.update()
+    else:
+        for json_product in shopcart_info["product_list"]:
+            if json_product["product_id"] == product_id:
+                product = Product.find(int(json_product["id"]))
+                product.product_name = update_receive["product_name"]
+                product.quantity = int(update_receive["quantity"])
+                product.price = float(update_receive["price"])
+                logging.debug("routesupdateexist:" +
+                              str(update_receive["price"]))
+                product.instock = (update_receive["instock"] == 'true')
+                product.wishlist = (update_receive["wishlist"] == 'true')
+                product.update()
+                if product.quantity <= 0:
+                    product.delete()
+                    return make_response("", status.HTTP_204_NO_CONTENT)
+                break
         else:
-            app.logger.info('Returning unfiltered list.')
-            pets = Pet.all()
+            product = Product()
+            product.deserialize(update_receive)
+            product.create()
+            shopcart.product_list.append(product)
+            shopcart.update()
 
-        app.logger.info('[%s] Pets returned', len(pets))
-        results = [pet.serialize() for pet in pets]
-        return results, status.HTTP_200_OK
+    return make_response(
+        product.serialize(),
+        status.HTTP_200_OK
+    )
 
-    # ------------------------------------------------------------------
-    # ADD A NEW PET
-    # ------------------------------------------------------------------
+######################################################################
+# STATEFUL ACTION REVERSE WISHLIST STATUS
+######################################################################
 
-    @api.doc('create_pets', security='apikey')
-    @api.response(400, 'The posted data was not valid')
-    @api.expect(create_model)
-    @api.marshal_with(pet_model, code=201)
-    @token_required
-    def post(self):
-        """
-        Creates a Pet
-        This endpoint will create a Pet based the data in the body that is posted
-        """
-        app.logger.info('Request to Create a Pet')
-        pet = Pet()
-        app.logger.debug('Payload = %s', api.payload)
-        pet.deserialize(api.payload)
-        pet.create()
-        app.logger.info('Pet with new id [%s] created!', pet.id)
-        location_url = api.url_for(PetResource, pet_id=pet.id, _external=True)
-        return pet.serialize(), status.HTTP_201_CREATED, {'Location': location_url}
 
-    # ------------------------------------------------------------------
-    # DELETE ALL PETS (for testing only)
-    # ------------------------------------------------------------------
-    @api.doc('delete_all_pets', security='apikey')
-    @api.response(204, 'All Pets deleted')
-    @token_required
-    def delete(self):
-        """
-        Delete all Pet
-
-        This endpoint will delete all Pet only if the system is under test
-        """
-        app.logger.info('Request to Delete all pets...')
-        if "TESTING" in app.config and app.config["TESTING"]:
-            Pet.remove_all()
-            app.logger.info("Removed all Pets from the database")
+@app.route("/shopcarts/<int:customer_id>/products/<int:product_id>/reversewishlist", methods=["PUT"])
+def stateful_reverse_wl(customer_id, product_id):
+    """
+    Convert a item wishlist status
+    This endpoint will make the wishlist status of a item been reversed
+    """
+    # app.logger.info(
+    #     f"Update item: {product_id} for shopcart with id: {customer_id}", )
+    shopcart = Shopcart.find(customer_id)
+    if not shopcart:
+        return (f"Account with id {customer_id} was not found",
+                status.HTTP_404_NOT_FOUND)
+    shopcart_info = shopcart.serialize()
+    if len(shopcart_info["product_list"]) == 0:
+        return (f"Product with product_id {product_id} was not found",
+                status.HTTP_404_NOT_FOUND)
+    else:
+        for json_product in shopcart_info["product_list"]:
+            if json_product["product_id"] == product_id:
+                update_product = Product.find(int(json_product["id"]))
+                update_product.wishlist = not update_product.wishlist
+                update_product.update()
+                break
         else:
-            app.logger.warning(
-                "Request to clear database while system not under test")
+            return (f"Product with product_id {product_id} was not found",
+                    status.HTTP_404_NOT_FOUND)
 
-        return '', status.HTTP_204_NO_CONTENT
+    return make_response(
+        update_product.serialize(),
+        status.HTTP_200_OK
+    )
 
 
 ######################################################################
-#  PATH: /pets/{id}/purchase
+# RETRIVE PRODUCT LIST
 ######################################################################
-@api.route('/pets/<pet_id>/purchase')
-@api.param('pet_id', 'The Pet identifier')
-class PurchaseResource(Resource):
-    """ Purchase actions on a Pet """
-    @api.doc('purchase_pets')
-    @api.response(404, 'Pet not found')
-    @api.response(409, 'The Pet is not available for purchase')
-    def put(self, pet_id):
-        """
-        Purchase a Pet
 
-        This endpoint will purchase a Pet and make it unavailable
-        """
-        app.logger.info('Request to Purchase a Pet')
-        pet = Pet.find(pet_id)
-        if not pet:
-            abort(status.HTTP_404_NOT_FOUND,
-                  'Pet with id [{}] was not found.'.format(pet_id))
-        if not pet.available:
-            abort(status.HTTP_409_CONFLICT,
-                  'Pet with id [{}] is not available.'.format(pet_id))
-        pet.available = False
-        pet.update()
-        app.logger.info('Pet with id [%s] has been purchased!', pet.id)
-        return pet.serialize(), status.HTTP_200_OK
+@app.route("/shopcarts/<int:customer_id>/products", methods=["GET"])
+def list_products_in_shopcart(customer_id):
+    """
+    Return the product list of a shopcart 
+    """
+    app.logger.info("Request for product list in a shopcart")
+    shopcart = Shopcart.find(customer_id)
+    results = [product.serialize() for product in shopcart.product_list]
+    return make_response(jsonify(results), status.HTTP_200_OK)
 
+######################################################################
+# ADD A PRODUCT INTO A SHOPCART
+######################################################################
+
+
+@app.route("/shopcarts/<int:customer_id>/products", methods=["POST"])
+def create_products(customer_id):
+    """
+    Add a product into a shopcart
+    """
+    app.logger.info("Request to add a product into a shopcart")
+    check_content_type("application/json")
+    shopcart = Shopcart.find(customer_id)
+    app.logger.warning(f"Found Shopcart with id {shopcart.customer_id}")
+    product = Product()
+    product.deserialize(request.get_json())
+    app.logger.warning(
+        f"Created Product with info:"
+        f"id {product.id}\n"
+        f"customer_id {product.customer_id}\n"
+        f"product_id {product.product_id}\n"
+        f"price {product.price}\n"
+        f"quantity {product.quantity}\n"
+        f"instock {product.instock}\n"
+        f"wishlist {product.wishlist}\n"
+    )
+    shopcart.product_list.append(product)
+    shopcart.update()
+    message = product.serialize()
+    return make_response(jsonify(message), status.HTTP_201_CREATED)
+
+######################################################################
+#  DELETE A SHOPCART
+######################################################################
+
+
+@app.route("/shopcarts/<int:customer_id>", methods=["DELETE"])
+def delete_carts(customer_id):
+    """
+    Delete a Shopcart
+    This endpoint will delete a shopcart based the customer_id specified in the path
+    """
+    app.logger.info(
+        "Request to delete a shopcart with customer_id: %s", customer_id)
+    shopcart = Shopcart.find(customer_id)
+    if shopcart:
+        shopcart.delete()
+        app.logger.info(
+            'Shopcart with customer_id [%s] was deleted', customer_id)
+    return make_response("", status.HTTP_204_NO_CONTENT)
+
+######################################################################
+#  DELETE A PRODUCT IN A SHOPCART
+######################################################################
+
+
+@app.route("/shopcarts/<int:customer_id>/products/<int:product_id>", methods=["DELETE"])
+def delete_a_product_in_shopcart(customer_id, product_id):
+    """
+    Delete a product in a Shopcart
+    This endpoint will delete a product in a shopcart based the customer_id and product_id specified in the path
+    """
+    app.logger.info(
+        "Request to delete a product with product_id in a shopcart with customer_id: %s", customer_id)
+    shopcart = Shopcart.find(customer_id)
+    if shopcart:
+        products = shopcart.product_list
+        for product in products:
+            if product.product_id == product_id:
+                product.delete()
+                app.logger.info(
+                    'Product with product_id [%s] in the shopcart with customer_id [%s] was deleted', product_id, customer_id)
+                return make_response("", status.HTTP_204_NO_CONTENT)
+    else:
+        abort(status.HTTP_404_NOT_FOUND,
+              f"shopcart with id {customer_id} not found")
+    return make_response(
+        "can not find product with id {product_id} in shopcart {customer_id}",
+        status.HTTP_404_NOT_FOUND
+    )
+
+
+######################################################################
+#  GET A PRODUCT IN A SHOPCART
+######################################################################
+@app.route("/shopcarts/<int:customer_id>/products/<int:product_id>", methods=["GET"])
+def get_a_product_in_shopcart(customer_id, product_id):
+    """
+    Return a product of a shopcart 
+    """
+    app.logger.info("Request to get a product in a shopcart")
+    shopcart = Shopcart.find(customer_id)
+    if not shopcart:
+        return make_response(
+            "shopcart with id {customer_id} not found",
+            status.HTTP_404_NOT_FOUND
+        )
+    products = shopcart.product_list
+    for product in products:
+        if product.product_id == product_id:
+            return make_response(
+                jsonify(product.serialize()),
+                status.HTTP_200_OK
+            )
+    return make_response(
+        "can not find product with id {product_id} in shopcart {customer_id}",
+        status.HTTP_404_NOT_FOUND
+    )
+
+######################################################################
+#  GET WISHLISTED ITEMS IN A SHOPCART
+######################################################################
+
+
+@app.route("/shopcarts/wishlist", methods=["GET"])
+def get_wishlist_items():
+    """ Returns all wishlisted items in a customers cart"""
+
+    customer_id = request.args.get('customer-id', None)
+
+    if not customer_id:
+        return(
+            f"Missing customer id from query string",
+            status.HTTP_400_BAD_REQUEST
+        )
+
+    shopcart = Shopcart.find(customer_id)
+
+    if not shopcart:
+        return make_response(
+            f"shopcart with id {customer_id} not found",
+            status.HTTP_404_NOT_FOUND
+        )
+
+    products = [product.serialize() for product in shopcart.product_list]
+
+    wishlisted_items = []
+
+    for product in products:
+        if product['wishlist'] == 'true':
+            wishlisted_items.append(product)
+
+    return make_response(jsonify(wishlisted_items), status.HTTP_200_OK)
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
 
-def abort(error_code: int, message: str):
-    """Logs errors before aborting"""
-    app.logger.error(message)
-    api.abort(error_code, message)
+
+def init_db():
+    """ Initialies the SQLAlchemy app """
+    global app
+    Shopcart.init_db(app)
 
 
-@app.before_first_request
-def init_db(dbname="pets"):
-    """ Initlaize the model """
-    Pet.init_db(dbname)
-
-# load sample data
-
-
-def data_load(payload):
-    """ Loads a Pet into the database """
-    pet = Pet(payload['name'], payload['category'], payload['available'])
-    pet.create()
-
-
-def data_reset():
-    """ Removes all Pets from the database """
-    Pet.remove_all()
+def check_content_type(media_type):
+    """Checks that the media type is correct"""
+    content_type = request.headers.get("Content-Type")
+    if content_type and content_type == media_type:
+        return
+    app.logger.error("Invalid Content-Type: %s", content_type)
+    abort(
+        status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+        "Content-Type must be {}".format(media_type),
+    )
