@@ -15,6 +15,10 @@ db = SQLAlchemy()
 #     Pet.init_db(app)
 
 
+class DatabaseConnectionError(Exception):
+    """Custom Exception when database connection fails"""
+
+
 class DataValidationError(Exception):
     """ Used for an data validation errors when deserializing """
     pass
