@@ -386,46 +386,82 @@ class ProductCollection(Resource):
                     product.instock = (data["instock"] == "true")
                     product.wishlist = (data["wishlist"] == "true")
                     product.update()
-                    if product.quantity <= 0:
-                        product.delete()
-                        return make_response("", status.HTTP_204_NO_CONTENT)
+                    # if product.quantity <= 0:
+                    #     product.delete()
+                    #     return "", status.HTTP_204_NO_CONTENT
                     break
         return shopcart.serialize(), status.HTTP_200_OK
 
-######################################################################
-#  PATH: /pets/{id}/purchase
-######################################################################
-# @api.route('/pets/<pet_id>/purchase')
-# @api.param('pet_id', 'The Pet identifier')
-# class PurchaseResource(Resource):
-#     """ Purchase actions on a Pet """
-#     @api.doc('purchase_pets')
-#     @api.response(404, 'Pet not found')
-#     @api.response(409, 'The Pet is not available for purchase')
-#     def put(self, pet_id):
-#         """
-#         Purchase a Pet
 
-#         This endpoint will purchase a Pet and make it unavailable
-#         """
-#         app.logger.info('Request to Purchase a Pet')
-#         pet = Pet.find(pet_id)
-#         if not pet:
-#             abort(status.HTTP_404_NOT_FOUND,
-#                   'Pet with id [{}] was not found.'.format(pet_id))
-#         if not pet.available:
-#             abort(status.HTTP_409_CONFLICT,
-#                   'Pet with id [{}] is not available.'.format(pet_id))
-#         pet.available = False
-#         pet.update()
-#         app.logger.info('Pet with id [%s] has been purchased!', pet.id)
-#         return pet.serialize(), status.HTTP_200_OK
+######################################################################
+# PATH: /shopcarts/<int:customer_id>/products/<int:product_id>/reversewishlist
+######################################################################
+@api.route('/shopcarts/<int:customer_id>/products/<int:product_id>/reversewishlist')
+@api.param('customer_id', 'The shopcart identifier')
+@api.param('product_id', 'The product identifier')
+class ReverseWishlistCollection(Resource):
+    """Handles reverse product wishlist in Shopcart with action of resource"""
+    # ------------------------------------------------------------------
+    # REVERSE AN EXISTING product in Shopcart
+    # ------------------------------------------------------------------
+    @api.doc('reverse_wishlist')
+    @api.response(404, 'Object not found')
+    @api.response(400, 'The Product is not valid for reverse')
+    @api.marshal_with(shopcart_model)
+    def put(self, customer_id, product_id):
+        app.logger.info(f'Request to Find a shopcart with id {customer_id}')
+        shopcart = Shopcart.find(customer_id)
+        if not shopcart:
+            return (f"Account with id {customer_id} was not found",
+                    status.HTTP_404_NOT_FOUND)
+        shopcart_info = shopcart.serialize()
+        if (len(shopcart_info["product_list"]) == 0) or (
+                not any(p["product_id"] == product_id for p in shopcart_info["product_list"])):
+            return (f"Product with product_id {product_id} was not found",
+                    status.HTTP_404_NOT_FOUND)
+        else:
+            for json_product in shopcart_info["product_list"]:
+                if json_product["product_id"] == product_id:
+                    update_product = Product.find(int(json_product["id"]))
+                    update_product.wishlist = not update_product.wishlist
+                    update_product.update()
+                    app.logger.info(
+                        f'Product wishlist Status now {update_product.wishlist}')
+                    break
+        return update_product.serialize(), status.HTTP_200_OK
+
+        ######################################################################
+        #  PATH: /pets/{id}/purchase
+        ######################################################################
+        # @api.route('/pets/<pet_id>/purchase')
+        # @api.param('pet_id', 'The Pet identifier')
+        # class PurchaseResource(Resource):
+        #     """ Purchase actions on a Pet """
+        #     @api.doc('purchase_pets')
+        #     @api.response(404, 'Pet not found')
+        #     @api.response(409, 'The Pet is not available for purchase')
+        #     def put(self, pet_id):
+        #         """
+        #         Purchase a Pet
+        #         This endpoint will purchase a Pet and make it unavailable
+        #         """
+        #         app.logger.info('Request to Purchase a Pet')
+        #         pet = Pet.find(pet_id)
+        #         if not pet:
+        #             abort(status.HTTP_404_NOT_FOUND,
+        #                   'Pet with id [{}] was not found.'.format(pet_id))
+        #         if not pet.available:
+        #             abort(status.HTTP_409_CONFLICT,
+        #                   'Pet with id [{}] is not available.'.format(pet_id))
+        #         pet.available = False
+        #         pet.update()
+        #         app.logger.info('Pet with id [%s] has been purchased!', pet.id)
+        #         return pet.serialize(), status.HTTP_200_OK
 
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
-
 def abort(error_code: int, message: str):
     """Logs errors before aborting"""
     app.logger.error(message)
