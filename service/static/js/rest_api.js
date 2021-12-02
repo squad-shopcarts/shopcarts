@@ -5,7 +5,7 @@ $(function () {
     // ****************************************
 
     // Updates the form with data from the response
-    function update_form_data(res) {
+    const update_form_data = (res) => {
         $("#sc_customer_id").val(res.customer_id);
         $("#sc_product_id").val(res.product_id);
         $("#sc_product_name").val(res.product_name);
@@ -24,12 +24,12 @@ $(function () {
         }
     }
 
-    function update_form_create(res) {
+    const update_form_create = (res) => {
         $("#sc_customer_id").val(res.customer_id);
     }
 
     // Clears all form fields
-    function clear_form_data() {
+    const clear_form_data = () => {
         $("#sc_customer_id").val("");
         $("#sc_product_id").val("");
         $("#sc_product_name").val("");
@@ -40,7 +40,7 @@ $(function () {
     }
 
     // Updates the flash message area
-    function flash_message(message) {
+    const flash_message = (message) => {
         $("#flash_message").empty();
         $("#flash_message").append(message);
     }
@@ -194,8 +194,14 @@ $(function () {
         })
 
         ajax.done(function (res) {
+            listShopcarts(res)
             update_form_data(res)
             flash_message("Success")
+        });
+
+        ajax.fail(function (res) {
+            clear_form_data()
+            flash_message(res.responseJSON.message)
         });
     });
 

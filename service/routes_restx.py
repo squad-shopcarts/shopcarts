@@ -170,10 +170,6 @@ def database_connection_error(error):
 #     """ Helper function used when testing API keys """
 #     return secrets.token_hex(16)
 
-######################################################################
-#  PATH: /shopcarts/{customer_id}/product/{product_id}
-######################################################################
-
 
 ######################################################################
 #  PATH: /shopcarts/{customer_id}
@@ -191,7 +187,7 @@ class ShopcartResource(Resource):
     """
 
     # ------------------------------------------------------------------
-    # RETRIEVE A PET
+    # RETRIEVE A Shopcart
     # ------------------------------------------------------------------
     @api.doc('get_shopcart')
     @api.response(404, 'Shopcart not found')
@@ -209,33 +205,6 @@ class ShopcartResource(Resource):
             abort(status.HTTP_404_NOT_FOUND,
                   f"Shopcart with id '{customer_id}' was not found.")
         return shopcart.serialize(), status.HTTP_200_OK
-
-    # ------------------------------------------------------------------
-    # UPDATE AN EXISTING PET
-    # ------------------------------------------------------------------
-    # @api.doc('update_pets', security='apikey')
-    # @api.response(404, 'Pet not found')
-    # @api.response(400, 'The posted Pet data was not valid')
-    # @api.expect(pet_model)
-    # @api.marshal_with(pet_model)
-    # @token_required
-    # def put(self, pet_id):
-    #     """
-    #     Update a Pet
-
-    #     This endpoint will update a Pet based the body that is posted
-    #     """
-    #     app.logger.info('Request to Update a pet with id [%s]', pet_id)
-    #     pet = Pet.find(pet_id)
-    #     if not pet:
-    #         abort(status.HTTP_404_NOT_FOUND,
-    #               "Pet with id '{}' was not found.".format(pet_id))
-    #     app.logger.debug('Payload = %s', api.payload)
-    #     data = api.payload
-    #     pet.deserialize(data)
-    #     pet.id = pet_id
-    #     pet.update()
-    #     return pet.serialize(), status.HTTP_200_OK
 
     # ------------------------------------------------------------------
     # DELETE A PET
@@ -257,16 +226,44 @@ class ShopcartResource(Resource):
 
     #     return '', status.HTTP_204_NO_CONTENT
 
-
 ######################################################################
 #  PATH: /pets
 ######################################################################
-# @api.route('/shopcarts', strict_slashes=False)
-# class ShopcartCollection(Resource):
-#     """ Handles all interactions with collections of Shopcarts """
-#     ------------------------------------------------------------------
-#     LIST ALL PETS
-#     ------------------------------------------------------------------
+
+
+@api.route('/shopcarts', strict_slashes=False)
+class ShopcartCollection(Resource):
+    """ Handles all interactions with collections of Shopcarts """
+
+    # ------------------------------------------------------------------
+    # UPDATE AN EXISTING Shopcart
+    # ------------------------------------------------------------------
+    # @api.doc('update_shopcart')
+    # @api.response(404, 'Shopcart not found')
+    # @api.response(400, 'The posted Product data was not valid')
+    # @api.expect(product_model)
+    # @api.marshal_with(shopcart_model)
+    # def put(self, customer_id):
+    #     """
+    #     Update a Shopcart
+
+    #     This endpoint will update a Shopcart based the body that is posted
+    #     """
+    #     app.logger.info(f'Request to Update a pet with id {customer_id}')
+    #     shopcart = Shopcart.find(customer_id)
+    #     if not shopcart:
+    #         abort(status.HTTP_404_NOT_FOUND,
+    #               "Pet with id '{}' was not found.".format(pet_id))
+    #     app.logger.debug('Payload = %s', api.payload)
+    #     data = api.payload
+    #     pet.deserialize(data)
+    #     pet.id = pet_id
+    #     pet.update()
+    #     return pet.serialize(), status.HTTP_200_OK
+
+    # ------------------------------------------------------------------
+    # LIST ALL PETS
+    # ------------------------------------------------------------------
     # @api.doc('list_pets')
     # @api.expect(pet_args, validate=True)
     # @api.marshal_list_with(pet_model)
@@ -340,6 +337,62 @@ class ShopcartResource(Resource):
 
 
 ######################################################################
+#  PATH: /shopcarts/{customer_id}/product/{product_id}
+######################################################################
+@api.route('/shopcarts/<int:customer_id>/products/<int:product_id>')
+@api.param('customer_id', 'The shopcart identifier')
+@api.param('product_id', 'The product identifier')
+class ProductCollection(Resource):
+    """ Handles all product in Shopcart with collections of Prodcut """
+    # ------------------------------------------------------------------
+    # UPDATE AN EXISTING Shopcart
+    # ------------------------------------------------------------------
+    @api.doc('update_shopcart')
+    @api.response(404, 'Shopcart not found')
+    @api.response(400, 'The posted Product data was not valid')
+    @api.expect(product_model)
+    @api.marshal_with(shopcart_model)
+    def put(self, customer_id, product_id):
+        """
+        Update a Shopcart
+
+        This endpoint will update a Shopcart based the body that is posted
+        """
+        app.logger.info(f'Request to Update a pet with id {customer_id}')
+        app.logger.debug('Payload = %s', api.payload)
+        data = api.payload
+        if int(data["quantity"]) <= 0:
+            abort(status.HTTP_400_BAD_REQUEST,
+                  f"Quantity have to be a POSITIVE INTEGER.")
+        shopcart = Shopcart.find(customer_id)
+        if not shopcart:
+            abort(status.HTTP_404_NOT_FOUND,
+                  f"Shopcart with id {customer_id} was not found.")
+        shopcart_info = shopcart.serialize()
+        if (len(shopcart_info["product_list"]) == 0) or (
+                not any(p["product_id"] == product_id for p in shopcart_info["product_list"])):
+            product = Product()
+            product.deserialize(data)
+            product.create()
+            shopcart.product_list.append(product)
+            shopcart.update()
+        else:
+            for json_product in shopcart_info["product_list"]:
+                if json_product["product_id"] == product_id:
+                    product = Product.find(int(json_product["id"]))
+                    product.product_name = data["product_name"]
+                    product.quantity = int(data["quantity"])
+                    product.price = float(data["price"])
+                    product.instock = (data["instock"] == "true")
+                    product.wishlist = (data["wishlist"] == "true")
+                    product.update()
+                    if product.quantity <= 0:
+                        product.delete()
+                        return make_response("", status.HTTP_204_NO_CONTENT)
+                    break
+        return shopcart.serialize(), status.HTTP_200_OK
+
+######################################################################
 #  PATH: /pets/{id}/purchase
 ######################################################################
 # @api.route('/pets/<pet_id>/purchase')
@@ -379,7 +432,7 @@ def abort(error_code: int, message: str):
     api.abort(error_code, message)
 
 
-@app.before_first_request
+@ app.before_first_request
 def init_db():
     """ Initlaize the model """
     global app
