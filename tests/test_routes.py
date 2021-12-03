@@ -280,8 +280,8 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(data["product_name"], product.product_name)
         self.assertEqual(data["quantity"], product.quantity)
         self.assertEqual(data["price"], product.price)
-        self.assertEqual(data["instock"] == 'true', product.instock)
-        self.assertEqual(data["wishlist"] == 'true', product.wishlist)
+        self.assertEqual(data["instock"], product.instock)
+        self.assertEqual(data["wishlist"], product.wishlist)
 
         # test getting a product not in product list, should return 404
         resp = self.app.get(
@@ -325,7 +325,7 @@ class TestYourResourceServer(TestCase):
             "/shopcarts", json=test_shopcart.serialize(), content_type='text/html'
         )
         self.assertEqual(resp.status_code,
-                         status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+                         status.HTTP_400_BAD_REQUEST)
 
     def test_create_bad_method(self):
         """Create shopcart with Bad Method Type """
@@ -413,7 +413,7 @@ class TestYourResourceServer(TestCase):
 
         self.assertEqual(len(data), 2)
         for i in range(len(data)):
-            self.assertEqual('true', data[i]['wishlist'])
+            self.assertEqual(True, data[i]['wishlist'])
 
     def test_get_wishlisted_items_without_customer_id(self):
         """ Query wishlist without providing customer id """
@@ -459,7 +459,7 @@ class TestYourResourceServer(TestCase):
             f"/shopcarts/{test_shopcart.customer_id}/products/{test_product.product_id}/reversewishlist",
             content_type="application/json"
         )
-        test_product.wishlist = not reverse_wl_resp.get_json()["wishlist"]
+        test_product.wishlist = not reverse_wl_resp.get_json()
         self.assertEqual(reverse_wl_resp.status_code, status.HTTP_200_OK)
 
     def test_bad_sa_reverse_wishist_item_no_shopcart(self):
