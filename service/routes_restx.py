@@ -178,7 +178,7 @@ class ShopcartCollection(Resource):
     @api.doc('create_shopcart') 
     @api.response(400, 'The posted Shopcart data was not valid')
     @api.expect(shopcart_model)
-    @api.marshal_with(shopcart_model, code=201)
+    @api.marshal_with(shopcart_model)
     def post(self):
         """
         Creates a Shopcart
@@ -287,7 +287,6 @@ class ProductResource(Resource):
     # ADD A PRODUCT TO A SHOPCART
     #------------------------------------------------------------------
     @api.doc('purchase_product')
-    @api.response(404, 'Shopcart not found')
     def put(self, customer_id):
         """
         Add a product to a shopcart
@@ -374,8 +373,8 @@ class ProductCollection(Resource):
     # GET A PRODUCT IN A SHOPCART
     # ------------------------------------------------------------------
     @api.doc('get_a_product')
-    @api.response(404, 'Product not found')
     @api.response(404, 'Shopcart not found')
+    @api.response(404, 'Product not found')
     @api.marshal_with(product_model)
     def get(self, customer_id, product_id):
         """
@@ -397,9 +396,9 @@ class ProductCollection(Resource):
     # DELETE A PRODUCT IN A SHOPCART
     # ------------------------------------------------------------------
     @api.doc('delete_a_product')
-    @api.response(404, 'Product not found')
     @api.response(404, 'Shopcart not found')
-    @api.marshal_with(product_model)
+    @api.response(404, 'Product not found')
+    @api.response(204, 'Product deleted')
     def delete(self, customer_id, product_id):
         """
         Delete a product in a Shopcart
@@ -467,8 +466,8 @@ class WishlistResource(Resource):
     # LIST ALL WISHLISTED ITEMS
     #------------------------------------------------------------------  
     @api.doc('list_wishlisted_products')
+    @api.response(400, 'Missing customer id from query string')    
     @api.response(404, 'Shopcart not found')
-    @api.response(400, 'Missing customer id from query string')
     @api.expect(shopcart_args, validate=True)
     @api.marshal_list_with(product_model)
     def get(self):
