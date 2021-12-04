@@ -90,9 +90,11 @@ Scenario: Delete a Product in a Shopcart
 
 Scenario: Delete a Shopcart
     When I visit the "Home Page"
-    And I set the "customer_id" to "1"
+    And I press the "Create" button
+    Then I should see the message "Success"
+    When I copy the "customer_id" field
     And I press the "Delete-Shopcart" button
-    And I set the "customer_id" to "1"
+    Then I should see the message "has been Deleted"
+    When I paste the "customer_id" field
     And I press the "Retrieve" button
-    Then I should not see "apple" in the search_results
-    Then I should not see "orange" in the search_results
+    Then I should see the message "was not found"
