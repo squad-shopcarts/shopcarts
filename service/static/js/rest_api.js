@@ -12,12 +12,12 @@ $(function () {
         $("#sc_product_quantity").val(res.quantity);
         $("#sc_product_price").val(res.price);
 
-        if (res.instock == 'true') {
+        if (res.instock == true) {
             $("#sc_instock").val("true");
         } else {
             $("#sc_instock").val("false");
         }
-        if (res.wishlist == 'true') {
+        if (res.wishlist == true) {
             $("#sc_wishlist").val("true");
         } else {
             $("#sc_wishlist").val("false");
@@ -194,7 +194,8 @@ $(function () {
         })
 
         ajax.done(function (res) {
-            listShopcarts(res)
+            // listShopcarts(res)
+            console.log(res);
             update_form_data(res)
             flash_message("Success")
         });
@@ -224,7 +225,7 @@ $(function () {
             console.log(res);
             //alert(res.toSource())
             listShopcarts(res)
-            update_form_data(res)
+            // update_form_data(res)
             flash_message("Success")
         });
 

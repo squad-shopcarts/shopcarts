@@ -111,11 +111,12 @@ shopcart_model = api.model('Shopcart', {
 # query string arguments
 shopcart_args = reqparse.RequestParser()
 shopcart_args.add_argument('customer-id', type=int, required=False,
-                      help='List Wishlisted Items')
+                           help='List Wishlisted Items')
 
 ######################################################################
 # Special Error Handlers
 ######################################################################
+
 
 @api.errorhandler(DataValidationError)
 def request_validation_error(error):
@@ -175,7 +176,7 @@ class ShopcartCollection(Resource):
     # ------------------------------------------------------------------
     # CREATE A NEW SHOPCART
     # ------------------------------------------------------------------
-    @api.doc('create_shopcart') 
+    @api.doc('create_shopcart')
     @api.response(400, 'The posted Shopcart data was not valid')
     @api.expect(shopcart_model)
     @api.marshal_with(shopcart_model)
@@ -189,14 +190,15 @@ class ShopcartCollection(Resource):
         app.logger.debug('Payload = %s', api.payload)
         shopcart.deserialize(api.payload)
         shopcart.create()
-        app.logger.info('Shopcart with new id [%s] created!', shopcart.customer_id)
+        app.logger.info(
+            'Shopcart with new id [%s] created!', shopcart.customer_id)
         location_url = api.url_for(
             ShopcartResource, customer_id=shopcart.customer_id, _external=True)
         return shopcart.serialize(), status.HTTP_201_CREATED, {'Location': location_url}
-    
-    #------------------------------------------------------------------
+
+    # ------------------------------------------------------------------
     # LIST ALL SHOPCARTS
-    #------------------------------------------------------------------
+    # ------------------------------------------------------------------
     @api.doc('list_shopcarts')
     @api.marshal_list_with(shopcart_model)
     def get(self):
@@ -254,7 +256,8 @@ class ShopcartResource(Resource):
 
         This endpoint will delete a Shopcart based the customer_id specified in the path
         """
-        app.logger.info('Request to Delete a Shopcart with id [%s]', customer_id)
+        app.logger.info(
+            'Request to Delete a Shopcart with id [%s]', customer_id)
         shopcart = Shopcart.find(customer_id)
         if shopcart:
             shopcart.delete()
@@ -265,16 +268,18 @@ class ShopcartResource(Resource):
 ######################################################################
 #  PATH: /shopcarts/{customer_id}/products
 ######################################################################
+
+
 @api.route('/shopcarts/<customer_id>/products')
 @api.param('customer_id', 'The Shopcart identifier')
 class ProductResource(Resource):
 
-    #------------------------------------------------------------------
+    # ------------------------------------------------------------------
     # GET PRODUCTS IN A SHOPCART
-    #------------------------------------------------------------------ 
+    # ------------------------------------------------------------------
     @api.doc('get_products_list')
     @api.marshal_list_with(product_model)
-    def get(self,customer_id):
+    def get(self, customer_id):
         """
         Return the product list of a shopcart 
         """
@@ -283,9 +288,9 @@ class ProductResource(Resource):
         results = [product.serialize() for product in shopcart.product_list]
         return results, status.HTTP_200_OK
 
-    #------------------------------------------------------------------
+    # ------------------------------------------------------------------
     # ADD A PRODUCT TO A SHOPCART
-    #------------------------------------------------------------------
+    # ------------------------------------------------------------------
     @api.doc('purchase_product')
     def post(self, customer_id):
         """
@@ -365,11 +370,9 @@ class ProductCollection(Resource):
                     product.instock = (data["instock"] == "true")
                     product.wishlist = (data["wishlist"] == "true")
                     product.update()
-                    # if product.quantity <= 0:
-                    #     product.delete()
-                    #     return "", status.HTTP_204_NO_CONTENT
                     return product.serialize(), status.HTTP_200_OK
-        abort(status.HTTP_404_NOT_FOUND, "Product with id {} not found".format(product_id))
+        abort(status.HTTP_404_NOT_FOUND,
+              "Product with id {} not found".format(product_id))
 
     # ------------------------------------------------------------------
     # GET A PRODUCT IN A SHOPCART
@@ -387,12 +390,14 @@ class ProductCollection(Resource):
         app.logger.info("Request to get a product in a shopcart")
         shopcart = Shopcart.find(customer_id)
         if not shopcart:
-            abort(status.HTTP_404_NOT_FOUND, "shopcart with id {} not found".format(customer_id))
+            abort(status.HTTP_404_NOT_FOUND,
+                  "shopcart with id {} not found".format(customer_id))
         products = shopcart.product_list
         for product in products:
             if product.product_id == product_id:
                 return product.serialize(), status.HTTP_200_OK
-        abort(status.HTTP_404_NOT_FOUND, "can not find product with id {} in shopcart {}".format(product_id,customer_id))    
+        abort(status.HTTP_404_NOT_FOUND, "can not find product with id {} in shopcart {}".format(
+            product_id, customer_id))
 
     # ------------------------------------------------------------------
     # DELETE A PRODUCT IN A SHOPCART
@@ -408,7 +413,7 @@ class ProductCollection(Resource):
         This endpoint will delete a product in a shopcart based the customer_id and product_id specified in the path
         """
         app.logger.info(
-        "Request to delete a product with product_id in a shopcart with customer_id: %s", customer_id)
+            "Request to delete a product with product_id in a shopcart with customer_id: %s", customer_id)
         shopcart = Shopcart.find(customer_id)
         if shopcart:
             products = shopcart.product_list
@@ -419,12 +424,16 @@ class ProductCollection(Resource):
                         'Product with product_id [%s] in the shopcart with customer_id [%s] was deleted', product_id, customer_id)
                     return product.serialize(), status.HTTP_204_NO_CONTENT
         else:
-            abort(status.HTTP_404_NOT_FOUND, "shopcart with id {} not found".format(customer_id))
-        abort(status.HTTP_404_NOT_FOUND, "can not find product with id {} in shopcart {}".format(product_id,customer_id)) 
+            abort(status.HTTP_404_NOT_FOUND,
+                  "shopcart with id {} not found".format(customer_id))
+        abort(status.HTTP_404_NOT_FOUND, "can not find product with id {} in shopcart {}".format(
+            product_id, customer_id))
 
 ######################################################################
 # PATH: /shopcarts/<int:customer_id>/products/<int:product_id>/reversewishlist
 ######################################################################
+
+
 @api.route('/shopcarts/<int:customer_id>/products/<int:product_id>/reversewishlist')
 @api.param('customer_id', 'The shopcart identifier')
 @api.param('product_id', 'The product identifier')
@@ -436,7 +445,7 @@ class ReverseWishlistCollection(Resource):
     @api.doc('reverse_wishlist')
     @api.response(404, 'Object not found')
     @api.response(400, 'The Product is not valid for reverse')
-    @api.marshal_with(shopcart_model)
+    @api.marshal_with(product_model)
     def put(self, customer_id, product_id):
         app.logger.info(f'Request to Find a shopcart with id {customer_id}')
         shopcart = Shopcart.find(customer_id)
@@ -451,33 +460,35 @@ class ReverseWishlistCollection(Resource):
         else:
             for json_product in shopcart_info["product_list"]:
                 if json_product["product_id"] == product_id:
-                    update_product = Product.find(int(json_product["id"]))
-                    update_product.wishlist = not update_product.wishlist
-                    update_product.update()
+                    product = Product.find(int(json_product["id"]))
+                    product.wishlist = not product.wishlist
+                    product.update()
                     app.logger.info(
-                        f'Product wishlist Status now {update_product.wishlist}')
-                    break
-        return update_product.serialize(), status.HTTP_200_OK
+                        f'Product wishlist Status now {product.wishlist}')
+                    app.logger.info(product.serialize())
+                    return product, status.HTTP_200_OK
 
 ######################################################################
 #  PATH: /shopcarts/wishlist
 ######################################################################
+
+
 @api.route('/shopcarts/wishlist', strict_slashes=False)
 class WishlistResource(Resource):
-    #------------------------------------------------------------------
+    # ------------------------------------------------------------------
     # LIST ALL WISHLISTED ITEMS
-    #------------------------------------------------------------------  
+    # ------------------------------------------------------------------
     @api.doc('list_wishlisted_products')
-    @api.response(400, 'Missing customer id from query string')    
+    @api.response(400, 'Missing customer id from query string')
     @api.response(404, 'Shopcart not found')
     @api.expect(shopcart_args, validate=True)
     @api.marshal_list_with(product_model)
     def get(self):
         customer_id = request.args.get('customer-id', None)
         if not customer_id:
-            abort( 
+            abort(
                 status.HTTP_400_BAD_REQUEST,
-                "Missing customer id from query string" 
+                "Missing customer id from query string"
             )
         shopcart = Shopcart.find(customer_id)
         if not shopcart:
