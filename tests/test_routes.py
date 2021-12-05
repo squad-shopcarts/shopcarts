@@ -11,7 +11,7 @@ from unittest import TestCase
 from unittest.mock import MagicMock, patch
 from service import status  # HTTP Status Codes
 from service.models import db
-from service.routes import app, init_db
+from service.routes import app, init_db, database_connection_error
 from tests.factories import ProductFactory, ShopcartFactory
 
 BASE_URL = "/shopcarts"
@@ -214,6 +214,21 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
         # self.assertEqual(len(resp.get_json()["product_list"]), 1)
 
+    def test_add_product_with_no_shopcart(self):
+        """ Add a prodct to a shopcart that doesn't exit """
+        test_product = ProductFactory()
+        test_product.customer_id = '1234'
+
+        resp = self.app.put(
+            f"/shopcarts/1234/products/4321",
+            json=test_product.serialize(),
+            content_type=CONTENT_TYPE_JSON
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+
+
     def test_list_products_in_shopcart(self):
         shopcart = self._create_shopcarts(1)[0]
         products = []
@@ -285,14 +300,14 @@ class TestYourResourceServer(TestCase):
 
         # test getting a product not in product list, should return 404
         resp = self.app.get(
-            "/shopcarts/{}/products/{}".format(shopcart.customer_id, -1),
+            "/shopcarts/{}/products/{}".format(shopcart.customer_id, 9999),
             content_type="applicationn/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
         # test getting a shopcart not in database, should return 404
         resp = self.app.get(
-            "/shopcarts/{}/products/{}".format(-1, products[0].product_id),
+            "/shopcarts/{}/products/{}".format(9999, products[0].product_id),
             content_type="applicationn/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
@@ -370,14 +385,14 @@ class TestYourResourceServer(TestCase):
 
         # test deleting a product not in product list, should return 404
         resp = self.app.delete(
-            "/shopcarts/{}/products/{}".format(shopcart.customer_id, -1),
+            "/shopcarts/{}/products/{}".format(shopcart.customer_id, 9999),
             content_type="applicationn/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
         # test deleting a shopcart not in database, should return 404
         resp = self.app.delete(
-            "/shopcarts/{}/products/{}".format(-1, product.product_id),
+            "/shopcarts/{}/products/{}".format(9999, product.product_id),
             content_type="applicationn/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
