@@ -58,15 +58,35 @@ Scenario: Update a Shopcart
 
 Scenario: Retrieve a Customer's Wishlisted Products
     When I visit the "Home Page"
-    And I set the "customer_id" to "2"
+    And I press the "Create" button
+    And I set the "product_id" to "9"
+    And I set the "product_name" to "egg"
+    And I set the "product_quantity" to "12"
+    And I set the "product_price" to "3.99"
+    And I select "False" in the "wishlist" dropdown
+    And I select "True" in the "instock" dropdown
+    And I press the "Update" button
+    And I set the "product_id" to "99"
+    And I set the "product_name" to "apple"
+    And I set the "product_quantity" to "1"
+    And I set the "product_price" to "5.99"
+    And I select "True" in the "wishlist" dropdown
+    And I select "True" in the "instock" dropdown
+    And I press the "Update" button
     And I press the "Retrieve-Wishlist" button
-    Then I should see "mouse" in the wishlist results
-    Then I should not see "apple" in the wishlist results
+    Then I should see "apple" in the wishlist results
+    Then I should not see "egg" in the wishlist results
 
 Scenario: Change a Product's Wishlist Status
     When I visit the "Home Page"
-    And I set the "customer_id" to "1"
+    And I press the "Create" button
     And I set the "product_id" to "9"
+    And I set the "product_name" to "egg"
+    And I set the "product_quantity" to "12"
+    And I set the "product_price" to "3.99"
+    And I select "False" in the "wishlist" dropdown
+    And I select "True" in the "instock" dropdown
+    And I press the "Update" button
     And I press the "Change-Wishlist" button
     Then I should see "True" in the "Wishlist" dropdown
     When I press the "Change-Wishlist" button
