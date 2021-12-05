@@ -1,4 +1,4 @@
-[![Build Status](https://app.travis-ci.com/squad-shopcarts/shopcarts.svg?branch=master)](https://app.travis-ci.com/squad-shopcarts/shopcarts)
+[![CI Build](https://github.com/squad-shopcarts/shopcarts/actions/workflows/docker-image.yml/badge.svg)](https://github.com/squad-shopcarts/shopcarts/actions/workflows/docker-image.yml)
 [![codecov](https://codecov.io/gh/squad-shopcarts/shopcarts/branch/master/graph/badge.svg?token=QTIVMHFLFM)](https://codecov.io/gh/squad-shopcarts/shopcarts)
 
 # nyu-devops-fall2021-squad-shopcarts
