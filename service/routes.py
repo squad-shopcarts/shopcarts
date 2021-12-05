@@ -402,6 +402,7 @@ class ProductCollection(Resource):
     # ------------------------------------------------------------------
     # DELETE A PRODUCT IN A SHOPCART
     # ------------------------------------------------------------------
+
     @api.doc('delete_a_product')
     @api.response(404, 'Shopcart not found')
     @api.response(404, 'Product not found')
@@ -423,11 +424,12 @@ class ProductCollection(Resource):
                     app.logger.info(
                         'Product with product_id [%s] in the shopcart with customer_id [%s] was deleted', product_id, customer_id)
                     return product.serialize(), status.HTTP_204_NO_CONTENT
+            abort(status.HTTP_404_NOT_FOUND, "can not find product with id {} in shopcart {}".format(
+                product_id, customer_id))
         else:
             abort(status.HTTP_404_NOT_FOUND,
                   "shopcart with id {} not found".format(customer_id))
-        abort(status.HTTP_404_NOT_FOUND, "can not find product with id {} in shopcart {}".format(
-            product_id, customer_id))
+
 
 ######################################################################
 # PATH: /shopcarts/<int:customer_id>/products/<int:product_id>/reversewishlist
