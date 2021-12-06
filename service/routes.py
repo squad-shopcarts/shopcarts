@@ -205,7 +205,7 @@ class ShopcartCollection(Resource):
         """ Returns all of the Shopcarts """
         app.logger.info("Request for all shopcarts")
         shopcarts = Shopcart.all()
-        app.logger.info('[%s] Pets returned', len(shopcarts))
+        app.logger.info('[%s] Shopcarts returned', len(shopcarts))
         results = [shopcart.serialize() for shopcart in shopcarts]
         return results, status.HTTP_200_OK
 
@@ -296,7 +296,7 @@ class ProductResource(Resource):
         """
         Add a product to a shopcart
 
-        This endpoint will purchase a Pet and make it unavailable
+        This endpoint will purchase a Shopcart and make it unavailable
         """
         app.logger.info("Request to add a product into a shopcart")
         shopcart = Shopcart.find(customer_id)
@@ -341,7 +341,7 @@ class ProductCollection(Resource):
 
         This endpoint will update a Shopcart based the body that is posted
         """
-        app.logger.info(f'Request to Update a pet with id {customer_id}')
+        app.logger.info(f'Request to Update a Shopcart with id {customer_id}')
         app.logger.debug('Payload = %s', api.payload)
         data = api.payload
         if int(data["quantity"]) <= 0:
@@ -525,11 +525,11 @@ def init_db():
 
 
 # def data_load(payload):
-#     """ Loads a Pet into the database """
+#     """ Loads a Shopcart into the database """
 #     Shopcart = Shopcart(payload['customer_id'], payload['product_list'])
 #     Shopcart.create()
 
 
 # def data_reset():
-#     """ Removes all Pets from the database """
+#     """ Removes all Shopcarts from the database """
 #     Shopcart.remove_all()
