@@ -11,7 +11,7 @@ from unittest import TestCase
 from unittest.mock import MagicMock, patch
 from service import status  # HTTP Status Codes
 from service.models import db
-from service.routes import app, init_db
+from service.routes import app, init_db, database_connection_error
 from tests.factories import ProductFactory, ShopcartFactory
 
 BASE_URL = "/shopcarts"
@@ -103,11 +103,6 @@ class TestYourResourceServer(TestCase):
     def test_healthchecl(self):
         """ Test index call """
         resp = self.app.get("/healthcheck")
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
-
-    def test_index(self):
-        """ Test index call """
-        resp = self.app.get("/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
     def test_list_shopcarts(self):
@@ -219,6 +214,21 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
         # self.assertEqual(len(resp.get_json()["product_list"]), 1)
 
+    def test_add_product_with_no_shopcart(self):
+        """ Add a prodct to a shopcart that doesn't exit """
+        test_product = ProductFactory()
+        test_product.customer_id = '1234'
+
+        resp = self.app.put(
+            f"/shopcarts/1234/products/4321",
+            json=test_product.serialize(),
+            content_type=CONTENT_TYPE_JSON
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+
+
     def test_list_products_in_shopcart(self):
         shopcart = self._create_shopcarts(1)[0]
         products = []
@@ -285,19 +295,19 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(data["product_name"], product.product_name)
         self.assertEqual(data["quantity"], product.quantity)
         self.assertEqual(data["price"], product.price)
-        self.assertEqual(data["instock"] == 'true', product.instock)
-        self.assertEqual(data["wishlist"] == 'true', product.wishlist)
+        self.assertEqual(data["instock"], product.instock)
+        self.assertEqual(data["wishlist"], product.wishlist)
 
         # test getting a product not in product list, should return 404
         resp = self.app.get(
-            "/shopcarts/{}/products/{}".format(shopcart.customer_id, -1),
+            "/shopcarts/{}/products/{}".format(shopcart.customer_id, 9999),
             content_type="applicationn/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
         # test getting a shopcart not in database, should return 404
         resp = self.app.get(
-            "/shopcarts/{}/products/{}".format(-1, products[0].product_id),
+            "/shopcarts/{}/products/{}".format(9999, products[0].product_id),
             content_type="applicationn/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
@@ -330,7 +340,7 @@ class TestYourResourceServer(TestCase):
             "/shopcarts", json=test_shopcart.serialize(), content_type='text/html'
         )
         self.assertEqual(resp.status_code,
-                         status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+                         status.HTTP_400_BAD_REQUEST)
 
     def test_create_bad_method(self):
         """Create shopcart with Bad Method Type """
@@ -375,14 +385,14 @@ class TestYourResourceServer(TestCase):
 
         # test deleting a product not in product list, should return 404
         resp = self.app.delete(
-            "/shopcarts/{}/products/{}".format(shopcart.customer_id, 100),
+            "/shopcarts/{}/products/{}".format(shopcart.customer_id, 9999),
             content_type="applicationn/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
         # test deleting a shopcart not in database, should return 404
         resp = self.app.delete(
-            "/shopcarts/{}/products/{}".format(100, product.product_id),
+            "/shopcarts/{}/products/{}".format(9999, product.product_id),
             content_type="applicationn/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
@@ -418,7 +428,7 @@ class TestYourResourceServer(TestCase):
 
         self.assertEqual(len(data), 2)
         for i in range(len(data)):
-            self.assertEqual('true', data[i]['wishlist'])
+            self.assertEqual(True, data[i]['wishlist'])
 
     def test_get_wishlisted_items_without_customer_id(self):
         """ Query wishlist without providing customer id """
@@ -464,7 +474,7 @@ class TestYourResourceServer(TestCase):
             f"/shopcarts/{test_shopcart.customer_id}/products/{test_product.product_id}/reversewishlist",
             content_type="application/json"
         )
-        test_product.wishlist = not reverse_wl_resp.get_json()["wishlist"]
+        test_product.wishlist = not reverse_wl_resp.get_json()
         self.assertEqual(reverse_wl_resp.status_code, status.HTTP_200_OK)
 
     def test_bad_sa_reverse_wishist_item_no_shopcart(self):
