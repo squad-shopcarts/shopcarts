@@ -19,7 +19,7 @@
 		// "sonarsource.sonarlint-vscode"
 	],
 	"forwardPorts": [
-		8080
+		5000
 	],
 	"postCreateCommand": "sudo pip install -U pip wheel && sudo pip install -r requirements.txt"
 }

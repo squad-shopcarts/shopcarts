@@ -31,7 +31,7 @@ RUN groupadd --gid $USER_GID $USERNAME \
 
 # Set up the development environment
 WORKDIR /workspace
-EXPOSE 8080
+EXPOSE 5000
 
 # Become a regular user
 USER $USERNAME
