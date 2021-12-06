@@ -105,6 +105,11 @@ class TestYourResourceServer(TestCase):
         resp = self.app.get("/healthcheck")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
+    def test_index(self):
+        """ Test index call """
+        resp = self.app.get("/")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
     def test_list_shopcarts(self):
         """List all shopcarts"""
         self._create_shopcarts(3)
@@ -370,14 +375,14 @@ class TestYourResourceServer(TestCase):
 
         # test deleting a product not in product list, should return 404
         resp = self.app.delete(
-            "/shopcarts/{}/products/{}".format(shopcart.customer_id, -1),
+            "/shopcarts/{}/products/{}".format(shopcart.customer_id, 100),
             content_type="applicationn/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
         # test deleting a shopcart not in database, should return 404
         resp = self.app.delete(
-            "/shopcarts/{}/products/{}".format(-1, product.product_id),
+            "/shopcarts/{}/products/{}".format(100, product.product_id),
             content_type="applicationn/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
