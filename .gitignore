@@ -7,7 +7,7 @@ Thumbs.db
 
 # VS Code
 .vscode/
-
+.idea
 # Test reports
 unittests.xml
 

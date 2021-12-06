@@ -105,6 +105,11 @@ class TestYourResourceServer(TestCase):
         resp = self.app.get("/healthcheck")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
+    def test_index(self):
+        """ Test index call """
+        resp = self.app.get("/")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
     def test_list_shopcarts(self):
         """List all shopcarts"""
         self._create_shopcarts(3)
