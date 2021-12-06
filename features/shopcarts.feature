@@ -31,7 +31,7 @@ Scenario: Create a Shopcart
 Scenario: Update a Shopcart
     When I visit the "Home Page"
     And I press the "Create" button
-    And I set the "product_id" to "9"
+    And I set the "product_id" to "1"
     And I set the "product_name" to "egg"
     And I set the "product_quantity" to "12"
     And I set the "product_price" to "3.99"
@@ -48,14 +48,14 @@ Scenario: Update a Shopcart
 Scenario: Retrieve a Customer's Wishlisted Products
     When I visit the "Home Page"
     And I press the "Create" button
-    And I set the "product_id" to "9"
+    And I set the "product_id" to "2"
     And I set the "product_name" to "egg"
     And I set the "product_quantity" to "12"
     And I set the "product_price" to "3.99"
     And I select "False" in the "wishlist" dropdown
     And I select "True" in the "instock" dropdown
     And I press the "Update" button
-    And I set the "product_id" to "99"
+    And I set the "product_id" to "3"
     And I set the "product_name" to "apple"
     And I set the "product_quantity" to "1"
     And I set the "product_price" to "5.99"
@@ -69,7 +69,7 @@ Scenario: Retrieve a Customer's Wishlisted Products
 Scenario: Change a Product's Wishlist Status
     When I visit the "Home Page"
     And I press the "Create" button
-    And I set the "product_id" to "9"
+    And I set the "product_id" to "4"
     And I set the "product_name" to "egg"
     And I set the "product_quantity" to "12"
     And I set the "product_price" to "3.99"
@@ -77,11 +77,9 @@ Scenario: Change a Product's Wishlist Status
     And I select "True" in the "instock" dropdown
     And I press the "Update" button
     And I copy the "customer_id" field
-    And I press the "Retrieve-Wishlist" button 
-    Then I should not see "egg" in the wishlist results
-    When I press the "Clear" button
+    And I press the "Clear" button
     And I paste the "customer_id" field
-    And I set the "product_id" to "9"
+    And I set the "product_id" to "4"
     And I press the "Change-Wishlist" button
     And I press the "Retrieve-Wishlist" button  
     Then I should see "egg" in the wishlist results
@@ -89,14 +87,14 @@ Scenario: Change a Product's Wishlist Status
 Scenario: List all Products
     When I visit the "Home Page"
     And I press the "Create" button
-    And I set the "product_id" to "9"
+    And I set the "product_id" to "5"
     And I set the "product_name" to "apple"
     And I set the "product_quantity" to "12"
     And I set the "product_price" to "3.99"
     And I select "False" in the "wishlist" dropdown
     And I select "True" in the "instock" dropdown
     And I press the "Update" button
-    And I set the "product_id" to "99"
+    And I set the "product_id" to "6"
     And I set the "product_name" to "orange"
     And I set the "product_quantity" to "12"
     And I set the "product_price" to "3.99"
@@ -110,16 +108,16 @@ Scenario: List all Products
 Scenario: Delete a Product in a Shopcart
     When I visit the "Home Page"
     And I press the "Create" button
-    And I set the "product_id" to "9"
+    And I set the "product_id" to "7"
     And I set the "product_name" to "apple"
     And I set the "product_quantity" to "12"
     And I set the "product_price" to "3.99"
     And I select "False" in the "wishlist" dropdown
     And I select "True" in the "instock" dropdown
     And I press the "Update" button
-    And I set the "product_id" to "99"
+    And I set the "product_id" to "8"
     And I set the "product_name" to "orange"
-    And I set the "product_quantity" to "12"
+    And I set the "product_quantity" to "1"
     And I set the "product_price" to "3.99" 
     And I select "False" in the "wishlist" dropdown
     And I select "True" in the "instock" dropdown
@@ -127,7 +125,7 @@ Scenario: Delete a Product in a Shopcart
     And I copy the "customer_id" field
     And I press the "Clear" button
     And I paste the "customer_id" field
-    And I set the "product_id" to "9"
+    And I set the "product_id" to "7"
     And I press the "Delete-Product" button
     And I paste the "customer_id" field
     And I press the "Retrieve" button
