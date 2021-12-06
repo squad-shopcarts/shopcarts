@@ -115,22 +115,15 @@ Scenario: Delete a Product in a Shopcart
     And I select "False" in the "wishlist" dropdown
     And I select "True" in the "instock" dropdown
     And I press the "Update" button
-    And I set the "product_id" to "8"
-    And I set the "product_name" to "orange"
-    And I set the "product_quantity" to "1"
-    And I set the "product_price" to "3.99" 
-    And I select "False" in the "wishlist" dropdown
-    And I select "True" in the "instock" dropdown
-    And I press the "Update" button
     And I copy the "customer_id" field
     And I press the "Clear" button
     And I paste the "customer_id" field
     And I set the "product_id" to "7"
+    And I copy the "customer_id" field
     And I press the "Delete-Product" button
     And I paste the "customer_id" field
     And I press the "Retrieve" button
     Then I should not see "apple" in the search_results
-    Then I should see "orange" in the search_results
 
 Scenario: Delete a Shopcart
     When I visit the "Home Page"
