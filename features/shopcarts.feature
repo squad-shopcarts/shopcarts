@@ -55,6 +55,9 @@ Scenario: Retrieve a Customer's Wishlisted Products
     And I select "False" in the "wishlist" dropdown
     And I select "True" in the "instock" dropdown
     And I press the "Update" button
+    And I copy the "customer_id" field
+    And I press the "Clear" button
+    And I paste the "customer_id" field
     And I set the "product_id" to "3"
     And I set the "product_name" to "apple"
     And I set the "product_quantity" to "1"
@@ -94,6 +97,9 @@ Scenario: List all Products
     And I select "False" in the "wishlist" dropdown
     And I select "True" in the "instock" dropdown
     And I press the "Update" button
+    And I copy the "customer_id" field
+    And I press the "Clear" button
+    And I paste the "customer_id" field
     And I set the "product_id" to "6"
     And I set the "product_name" to "orange"
     And I set the "product_quantity" to "12"
