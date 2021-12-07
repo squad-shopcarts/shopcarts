@@ -197,7 +197,7 @@ $(function () {
             // listShopcarts(res)
             console.log(res);
             update_form_data(res)
-            flash_message("Success")
+            flash_message("Added Product to Shopcart")
         });
 
         ajax.fail(function (res) {
@@ -295,8 +295,9 @@ $(function () {
     // ****************************************
 
     $("#clear-btn").click(function () {
-        $("#pet_id").val("");
+        $("#customer_id").val("");
         clear_form_data()
+        flash_message("Data Cleared")
     });
 
     // ****************************************
