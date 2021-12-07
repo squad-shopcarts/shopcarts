@@ -98,7 +98,8 @@ Scenario: Change a Product's Wishlist Status
 Scenario: List all Products
     When I visit the "Home Page"
     And I press the "Create" button
-    And I set the "product_id" to "5"
+    Then I should see the message "Success"
+    When I set the "product_id" to "5"
     And I set the "product_name" to "apple"
     And I set the "product_quantity" to "12"
     And I set the "product_price" to "3.99"
