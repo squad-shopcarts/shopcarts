@@ -130,7 +130,7 @@ $(function () {
 
         ajax.done(function (res) {
             update_form_create(res);
-            flash_message("Success!");
+            flash_message("Success");
         });
 
         ajax.fail(function (res) {

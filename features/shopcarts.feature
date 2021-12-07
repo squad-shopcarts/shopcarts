@@ -25,7 +25,7 @@ Scenario: The server is running
 Scenario: Create a Shopcart
     When I visit the "Home Page"
     And I press the "Create" button
-    Then I should see the message "Success!"
+    Then I should see the message "Success"
 
 
 Scenario: Update a Shopcart
