@@ -25,7 +25,7 @@ Scenario: The server is running
 Scenario: Create a Shopcart
     When I visit the "Home Page"
     And I press the "Create" button
-    Then I should see the message "Success"
+    Then I should see the message "Success!"
 
 
 Scenario: Update a Shopcart
@@ -55,19 +55,23 @@ Scenario: Retrieve a Customer's Wishlisted Products
     And I select "True" in the "wishlist" dropdown
     And I select "True" in the "instock" dropdown
     And I press the "Update" button
-    And I copy the "customer_id" field
+    Then I should see the message "Added Product to Shopcart"
+    When I copy the "customer_id" field
     And I press the "Clear" button
-    And I paste the "customer_id" field
-    # And I set the "product_id" to "3"
-    # And I set the "product_name" to "apple"
-    # And I set the "product_quantity" to "1"
-    # And I set the "product_price" to "5.99"
-    # And I select "True" in the "wishlist" dropdown
-    # And I select "True" in the "instock" dropdown
-    # And I press the "Update" button
-    And I press the "Retrieve-Wishlist" button
+    Then I should see the message "Data Cleared"
+    When I paste the "customer_id" field
+    And I set the "product_id" to "3"
+    And I set the "product_name" to "apple"
+    And I set the "product_quantity" to "1"
+    And I set the "product_price" to "5.99"
+    And I select "True" in the "wishlist" dropdown
+    And I select "True" in the "instock" dropdown
+    And I press the "Update" button
+    Then I should see the message "Added Product to Shopcart"
+    When I press the "Retrieve-Wishlist" button
     # Then I should see "apple" in the wishlist results
     Then I should see "egg" in the wishlist results
+    Then I should see "apple" in the wishlist results
 
 Scenario: Change a Product's Wishlist Status
     When I visit the "Home Page"
