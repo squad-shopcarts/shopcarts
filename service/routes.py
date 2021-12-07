@@ -341,7 +341,7 @@ class ProductCollection(Resource):
 
         This endpoint will update a Shopcart based the body that is posted
         """
-        app.logger.info(f'Request to Update a Shopcart with id {customer_id}')
+        app.logger.info(f'Request to Update a Shopcart with id {customer_id}, product id {product_id}')
         app.logger.debug('Payload = %s', api.payload)
         data = api.payload
         if int(data["quantity"]) <= 0:
