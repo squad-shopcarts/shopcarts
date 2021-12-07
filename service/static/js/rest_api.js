@@ -351,7 +351,7 @@ $(function () {
             console.log(res);
             //alert(res.toSource())
             update_form_data(res)
-            flash_message("Success")
+            flash_message("Reversed Wishlist Status")
         });
 
         ajax.fail(function (res) {
