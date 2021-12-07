@@ -500,9 +500,11 @@ class WishlistResource(Resource):
             )
         products = [product.serialize() for product in shopcart.product_list]
         wishlisted_items = []
+        
         for product in products:
             if product['wishlist'] == 'true':
                 wishlisted_items.append(product)
+        app.logger.info(f"Request for cart {customer_id} to return Wishlisted Items: {wishlisted_items}")
         return wishlisted_items, status.HTTP_200_OK
 
 
