@@ -31,7 +31,8 @@ Scenario: Create a Shopcart
 Scenario: Update a Shopcart
     When I visit the "Home Page"
     And I press the "Create" button
-    And I set the "product_id" to "1"
+    Then I should see the message "Success"
+    When I set the "product_id" to "1"
     And I set the "product_name" to "egg"
     And I set the "product_quantity" to "12"
     And I set the "product_price" to "3.99"
@@ -48,7 +49,8 @@ Scenario: Update a Shopcart
 Scenario: Retrieve a Customer's Wishlisted Products
     When I visit the "Home Page"
     And I press the "Create" button
-    And I set the "product_id" to "2"
+    Then I should see the message "Success"
+    When I set the "product_id" to "2"
     And I set the "product_name" to "egg"
     And I set the "product_quantity" to "12"
     And I set the "product_price" to "3.99"
@@ -69,13 +71,15 @@ Scenario: Retrieve a Customer's Wishlisted Products
     And I press the "Update" button
     Then I should see the message "Added Product to Shopcart"
     When I press the "Retrieve-Wishlist" button
+    Then I should see the message "Successfully Retrieved Wishlisted Items"
     Then I should see "egg" in the wishlist results
     Then I should see "apple" in the wishlist results
 
 Scenario: Change a Product's Wishlist Status
     When I visit the "Home Page"
     And I press the "Create" button
-    And I set the "product_id" to "4"
+    Then I should see the message "Success"
+    When I set the "product_id" to "4"
     And I set the "product_name" to "egg"
     And I set the "product_quantity" to "12"
     And I set the "product_price" to "3.99"
@@ -85,6 +89,7 @@ Scenario: Change a Product's Wishlist Status
     Then I should see the message "Added Product to Shopcart"
     When I copy the "customer_id" field
     And I press the "Retrieve-Wishlist" button
+    Then I should see the message "Successfully Retrieved Wishlisted Items"
     Then I should not see "egg" in the wishlist results
     When I press the "Clear" button
     Then I should see the message "Data Cleared"
@@ -92,7 +97,8 @@ Scenario: Change a Product's Wishlist Status
     And I set the "product_id" to "4"
     And I press the "Change-Wishlist" button
     Then I should see the message "Reversed Wishlist Status"
-    When I press the "Retrieve-Wishlist" button  
+    When I press the "Retrieve-Wishlist" button
+    Then I should see the message "Successfully Retrieved Wishlisted Items"  
     Then I should see "egg" in the wishlist results
 
 Scenario: List all Products
@@ -126,7 +132,8 @@ Scenario: List all Products
 Scenario: Delete a Product in a Shopcart
     When I visit the "Home Page"
     And I press the "Create" button
-    And I set the "product_id" to "7"
+    Then I should see the message "Success"
+    When I set the "product_id" to "7"
     And I set the "product_name" to "apple"
     And I set the "product_quantity" to "12"
     And I set the "product_price" to "3.99"
