@@ -28,6 +28,7 @@ DELETE /shopcarts/{id} - deletes a Shopcart record in the database
 DELETE /shopcarts/{id}/products/{id} - deletes a product record in the shopcart
 """
 
+from re import escape
 import sys
 import secrets
 import logging
@@ -300,20 +301,24 @@ class ProductResource(Resource):
         app.logger.info("Request to add a product into a shopcart")
         shopcart = Shopcart.find(customer_id)
         app.logger.warning(f"Found Shopcart with id {shopcart.customer_id}")
-        product = Product()
-        product.deserialize(request.get_json())
-        app.logger.warning(
-            f"Created Product with info:"
-            f"id {product.id}\n"
-            f"customer_id {product.customer_id}\n"
-            f"product_id {product.product_id}\n"
-            f"price {product.price}\n"
-            f"quantity {product.quantity}\n"
-            f"instock {product.instock}\n"
-            f"wishlist {product.wishlist}\n"
-        )
-        shopcart.product_list.append(product)
-        shopcart.update()
+        try:
+            product = Product()
+            product.deserialize(request.get_json())
+            app.logger.warning(
+                f"Created Product with info:"
+                f"id {product.id}\n"
+                f"customer_id {product.customer_id}\n"
+                f"product_id {product.product_id}\n"
+                f"price {product.price}\n"
+                f"quantity {product.quantity}\n"
+                f"instock {product.instock}\n"
+                f"wishlist {product.wishlist}\n"
+            )
+            shopcart.product_list.append(product)
+            shopcart.update()
+        except:
+            abort(status.HTTP_400_BAD_REQUEST,
+                  f"Shopcart with id {customer_id} has bad input.")
         return product.serialize(), status.HTTP_201_CREATED
 
 
@@ -343,6 +348,11 @@ class ProductCollection(Resource):
         app.logger.info(f'Request to Update a Shopcart with id {customer_id}, product id {product_id}')
         app.logger.debug('Payload = %s', api.payload)
         data = api.payload
+        try:
+            data["quantity"] = int(data["quantity"])
+        except:
+            abort(status.HTTP_400_BAD_REQUEST,
+                  f"Quantity have to be a POSITIVE INTEGER.")
         if int(data["quantity"]) <= 0:
             abort(status.HTTP_400_BAD_REQUEST,
                   f"Quantity have to be a POSITIVE INTEGER.")
@@ -353,22 +363,30 @@ class ProductCollection(Resource):
         shopcart_info = shopcart.serialize()
         if (len(shopcart_info["product_list"]) == 0) or (
                 not any(p["product_id"] == product_id for p in shopcart_info["product_list"])):
-            product = Product()
-            product.deserialize(data)
-            product.create()
-            shopcart.product_list.append(product)
-            shopcart.update()
+            try:
+                product = Product()
+                product.deserialize(data)
+                product.create()
+                shopcart.product_list.append(product)
+                shopcart.update()
+            except:
+                abort(status.HTTP_400_BAD_REQUEST,
+                  f"Shopcart with id {customer_id} has bad input.")
             return product.serialize(), status.HTTP_200_OK
         else:
             for json_product in shopcart_info["product_list"]:
                 if json_product["product_id"] == product_id:
-                    product = Product.find(int(json_product["id"]))
-                    product.product_name = data["product_name"]
-                    product.quantity = int(data["quantity"])
-                    product.price = float(data["price"])
-                    product.instock = (data["instock"] == "true")
-                    product.wishlist = (data["wishlist"] == "true")
-                    product.update()
+                    try:
+                        product = Product.find(int(json_product["id"]))
+                        product.product_name = data["product_name"]
+                        product.quantity = int(data["quantity"])
+                        product.price = float(data["price"])
+                        product.instock = (data["instock"] == "true")
+                        product.wishlist = (data["wishlist"] == "true")
+                        product.update()
+                    except:
+                        abort(status.HTTP_400_BAD_REQUEST,
+                  f"Shopcart with id {customer_id} has bad input.")
                     return product.serialize(), status.HTTP_200_OK
         abort(status.HTTP_404_NOT_FOUND,
               "Product with id {} not found".format(product_id))
