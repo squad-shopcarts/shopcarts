@@ -273,7 +273,6 @@ class ShopcartResource(Resource):
 @api.route('/shopcarts/<customer_id>/products')
 @api.param('customer_id', 'The Shopcart identifier')
 class ProductResource(Resource):
-
     # ------------------------------------------------------------------
     # GET PRODUCTS IN A SHOPCART
     # ------------------------------------------------------------------
@@ -449,6 +448,9 @@ class ReverseWishlistCollection(Resource):
     @api.response(400, 'The Product is not valid for reverse')
     @api.marshal_with(product_model)
     def put(self, customer_id, product_id):
+        """
+        Reverse a product wishlist state
+        """
         app.logger.info(f'Request to Find a shopcart with id {customer_id}')
         shopcart = Shopcart.find(customer_id)
         if not shopcart:
@@ -486,6 +488,9 @@ class WishlistResource(Resource):
     @api.expect(shopcart_args, validate=True)
     @api.marshal_list_with(product_model)
     def get(self):
+        """
+        List a shopcart wishlist
+        """
         customer_id = request.args.get('customer-id', None)
         if not customer_id:
             abort(
